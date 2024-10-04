@@ -1,0 +1,260 @@
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 4 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 5 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 6 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 7 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 4 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 5 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 6 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:15:17 UTC] PHP Notice:  Uninitialized string offset: 7 in /home/fidestci/public_html/devis/request/generate_devis.php on line 82
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Trying to access array offset on value of type bool in /home/fidestci/public_html/devis/request/export_resultat.php on line 60
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: date_creation in /home/fidestci/public_html/devis/request/export_resultat.php on line 61
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: montant_total in /home/fidestci/public_html/devis/request/export_resultat.php on line 62
+[04-Oct-2024 11:30:03 UTC] PHP Notice:  Undefined index: statut in /home/fidestci/public_html/devis/request/export_resultat.php on line 63
