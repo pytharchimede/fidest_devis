@@ -1,0 +1,282 @@
+#logo {
+    max-width: 150px;
+    height: auto;
+    margin-bottom: 20px;
+}
+
+body {
+    background-color: #f8f9fa;
+}
+
+.table input {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* Charte graphique */
+
+body {
+    font-family: Arial, sans-serif;
+    color: #1d2b57;
+}
+
+.navbar {
+    background-color: #1d2b57;
+}
+
+.navbar-brand img {
+    height: 50px;
+    /* Ajuster la taille du logo si nécessaire */
+}
+
+.navbar-nav .nav-link {
+    color: #fabd02 !important;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #ffffff !important;
+}
+
+.navbar-nav .nav-link.active {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.nav-item+.nav-item {
+    border-left: 1px solid #fabd02;
+    margin-left: 15px;
+    padding-left: 15px;
+}
+
+.btn-primary {
+    background-color: #1d2b57;
+    border-color: #1d2b57;
+}
+
+.btn-primary:hover {
+    background-color: #153e6e;
+    border-color: #153e6e;
+}
+
+.btn-secondary {
+    background-color: #fabd02;
+    border-color: #fabd02;
+}
+
+.btn-secondary:hover {
+    background-color: #e0a800;
+    border-color: #e0a800;
+}
+
+#logoUploadContainer {
+    position: relative;
+    width: 100%;
+    max-width: 150px;
+    height: 150px;
+    border: 2px dashed #1d2b57;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    cursor: pointer;
+    flex: 1;
+}
+
+#logoUploadContainer.drag-over {
+    border-color: #1d2b57;
+    background-color: #e9ecef;
+}
+
+#logoPreview {
+    max-width: 100%;
+    max-height: 100%;
+    display: none;
+}
+
+.logo-message {
+    text-align: center;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+#logoUploadContainer img {
+    display: block;
+}
+
+.info-container {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 15px;
+}
+
+.info-container .form-group {
+    width: 100%;
+}
+
+.info-container .form-group label,
+.info-container .form-group input {
+    width: 100%;
+}
+
+.info-container .form-group {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.info-container .form-group input {
+    margin-top: 5px;
+}
+
+.spacer {
+    width: 50%;
+    /* Adjust as needed */
+}
+
+.footer-info {
+    margin-top: 20px;
+}
+
+.footer-info textarea {
+    resize: none;
+}
+
+.total-info input {
+    width: 100%;
+}
+
+
+/* Footer Styles */
+
+.footer {
+    background-color: #1d2b57;
+    color: #ffffff;
+    padding: 20px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    margin-top: 10px;
+}
+
+.footer .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer .social-icons a {
+    color: #fabd02;
+    margin: 0 10px;
+    font-size: 20px;
+    text-decoration: none;
+}
+
+.footer .social-icons a:hover {
+    color: #ffffff;
+}
+
+.footer .text-center {
+    text-align: center;
+}
+
+.form-group {
+    display: inline-block;
+    margin-right: 20px; /* Espace entre les groupes */
+}
+
+.form-group label {
+    margin-right: 10px; /* Espace entre le texte et le switch */
+    font-weight: bold;
+    vertical-align: middle; /* Aligne verticalement le label avec le switch */
+}
+
+
+.checkbox_zone {
+    background-color: #f9f9f9; /* Couleur de fond discrète */
+    padding: 15px; /* Ajoute de l'espace intérieur */
+    margin-top: 20px; /* Ajoute de la marge au-dessus */
+    margin-bottom: 20px; /* Ajoute de la marge au-dessus */
+    border: 1px solid #ddd; /* Bordure soft */
+    border-radius: 10px; /* Bords arrondis */
+}
+
+.checkbox_zone .form-group {
+    display: inline-block;
+    margin-right: 20px; /* Espace entre les groupes */
+}
+
+.checkbox_zone label {
+    margin: 10px; /* Espace entre le texte et le switch */
+    font-weight: bold;
+    vertical-align: middle; /* Aligne verticalement le label avec le switch */
+}
+
+/* Style de base pour le switch */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    vertical-align: middle; /* Aligne verticalement le switch avec le label */
+}
+
+/* Masque l'input original */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Style du slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+/* Ajout du rond du slider */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+/* Quand le switch est activé */
+input:checked + .slider {
+    background-color: #1d2b57; /* Couleur du switch activé */
+}
+
+/* Déplacement du rond */
+input:checked + .slider:before {
+    transform: translateX(26px);
+}
+
+/* Style du slider en version ronde */
+.slider.round {
+    border-radius: 34px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
+
+.checkbox_zone{
+    
+}
