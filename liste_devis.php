@@ -18,173 +18,103 @@
 
     <style>
         body {
-
             background-color: #f7f9fc;
-
+            font-family: Arial, sans-serif;
         }
-
-
 
         .container {
-
             margin-top: 2rem;
-
         }
-
-
 
         .card-grid {
-
             display: grid;
-
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.5rem;
-
         }
-
-
 
         .card {
-
             border: none;
-
-            border-radius: 10px;
-
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-
+            border-radius: 12px;
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-
             background-color: #ffffff;
-
+            overflow: hidden;
         }
-
-
 
         .card:hover {
-
             transform: translateY(-5px);
-
-            box-shadow: 0 8px 12px rgba(0, 0, 0, 0.15);
-
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
         }
-
-
 
         .card-header {
-
             background-color: #1d2b57;
-
             color: #ffffff;
-
             font-weight: bold;
-
             text-align: center;
-
-            padding: 1rem;
-
-            border-radius: 10px 10px 0 0;
-
+            padding: 1.2rem;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-
+        .card-header i {
+            margin-right: 8px;
+            font-size: 1.3rem;
+        }
 
         .card-body {
-
-            padding: 1rem;
-
+            padding: 1.5rem;
         }
 
-
+        .info-grid p {
+            display: flex;
+            justify-content: space-between;
+            margin: 0.4rem 0;
+            font-size: 0.95rem;
+            color: #555;
+        }
 
         .card-footer {
-
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
             background-color: #f8f9fa;
-
-            padding: 0.5rem 1rem;
-
-            border-radius: 0 0 10px 10px;
-
-            text-align: center;
-
+            padding: 0.8rem;
+            border-top: 1px solid #e0e0e0;
         }
-
-
 
         .card-footer a {
-
-            color: #007bff;
-
+            color: #ffffff;
             text-decoration: none;
-
             font-weight: bold;
-
-            transition: color 0.3s ease;
-
+            padding: 0.4rem 1rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
         }
 
-
-
-        .card-footer a:hover {
-
-            color: #0056b3;
-
+        .btn-view {
+            background-color: #007bff;
         }
 
-
-
-        .btn-primary {
-
-            background-color: #1d2b57;
-
-            border-color: #1d2b57;
-
+        .btn-view:hover {
+            background-color: #0056b3;
         }
 
-
-
-        .btn-primary:hover {
-
-            background-color: #14203e;
-
-            border-color: #14203e;
-
+        .btn-hide {
+            background-color: #6c757d;
         }
 
-
-
-        .navbar-brand img {
-
-            height: 50px;
-
+        .btn-hide:hover {
+            background-color: #5a6268;
         }
 
-
-
-        footer {
-
-            margin-top: 3rem;
-
+        .btn-edit {
+            background-color: #28a745;
         }
 
-
-
-        .social-icons a {
-
-            color: #1d2b57;
-
-            margin: 0 10px;
-
-            transition: color 0.3s ease;
-
-        }
-
-
-
-        .social-icons a:hover {
-
-            color: #fabd02;
-
+        .btn-edit:hover {
+            background-color: #218838;
         }
     </style>
 
@@ -458,58 +388,31 @@
         <!-- Grid displaying quotes -->
 
         <div class="card-grid">
-
             <!-- PHP code to fetch and display quotes from the database -->
-
-            <?php
-
-
-
-            foreach ($devis as $de) {
-
-                echo '<div class="card">';
-
-                echo '<div class="card-header">' . htmlspecialchars($de['numero_devis']) . '</div>';
-
-                echo '<div class="card-body">';
-
-                echo '<p><strong>Délai Livraison:</strong> ' . htmlspecialchars($de['delai_livraison']) . '</p>';
-
-                echo '<p><strong>Date Émission:</strong> ' . htmlspecialchars($de['date_emission']) . '</p>';
-
-                echo '<p><strong>Date Expiration:</strong> ' . htmlspecialchars($de['date_expiration']) . '</p>';
-
-                echo '<p><strong>Émis Par:</strong> ' . htmlspecialchars($de['emis_par']) . '</p>';
-
-                echo '<p><strong>Destiné À:</strong> ' . htmlspecialchars($de['destine_a']) . '</p>';
-
-                echo '<p><strong>Total HT:</strong> ' . htmlspecialchars($de['total_ht']) . ' FCFA</p>';
-
-                echo '<p><strong>Total TTC:</strong> ' . htmlspecialchars($de['total_ttc']) . ' FCFA</p>';
-
-                echo '<p><strong>Date de Création:</strong> ' . htmlspecialchars($de['created_at']) . '</p>';
-
-                echo '</div>';
-
-                echo '<div class="card-footer">';
-
-                echo '<a target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=' . $de['id'] . '"><i class="fas fa-eye"></i> Visualiser</a>';
-
-                echo '<br/>';
-
-                echo '<a href="https://fidest.ci/devis/request/masquer_devis.php?devisId=' . $de['id'] . '"><i class="fas fa-eye-slash"></i> Masquer</a>';
-
-                echo '<br/>';
-
-                echo '<a href="https://fidest.ci/devis/modifier_devis.php?devisId=' . $de['id'] . '"><i class="fas fa-edit"></i> Modifier</a>';
-
-                echo '</div>';
-
-                echo '</div>';
-            }
-
-            ?>
-
+            <?php foreach ($devis as $de) : ?>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fas fa-file-invoice"></i> <?= htmlspecialchars($de['numero_devis']) ?>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-grid">
+                            <p><strong>Délai Livraison:</strong> <?= htmlspecialchars($de['delai_livraison']) ?></p>
+                            <p><strong>Date Émission:</strong> <?= htmlspecialchars($de['date_emission']) ?></p>
+                            <p><strong>Date Expiration:</strong> <?= htmlspecialchars($de['date_expiration']) ?></p>
+                            <p><strong>Émis Par:</strong> <?= htmlspecialchars($de['emis_par']) ?></p>
+                            <p><strong>Destiné À:</strong> <?= htmlspecialchars($de['destine_a']) ?></p>
+                            <p><strong>Total HT:</strong> <?= htmlspecialchars($de['total_ht']) ?> FCFA</p>
+                            <p><strong>Total TTC:</strong> <?= htmlspecialchars($de['total_ttc']) ?> FCFA</p>
+                            <p><strong>Date de Création:</strong> <?= htmlspecialchars($de['created_at']) ?></p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a class="btn-view" target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
+                        <a class="btn-hide" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye-slash"></i> Masquer</a>
+                        <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-edit"></i> Modifier</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
         </div>
 
 
