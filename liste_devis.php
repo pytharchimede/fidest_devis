@@ -117,6 +117,125 @@
         .btn-edit:hover {
             background-color: #218838;
         }
+
+        .footer-actions {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 1rem;
+        }
+
+        .footer-validation {
+            display: flex;
+            justify-content: center;
+            padding: 1rem;
+            border-top: 1px solid #e0e0e0;
+            gap: 1rem;
+        }
+
+        .btn-view,
+        .btn-hide,
+        .btn-edit,
+        .btn-validate {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1.2rem;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-view {
+            background-color: #007bff;
+        }
+
+        .btn-view:hover {
+            background-color: #0056b3;
+        }
+
+        .btn-hide {
+            background-color: #6c757d;
+        }
+
+        .btn-hide:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-edit {
+            background-color: #28a745;
+        }
+
+        .btn-edit:hover {
+            background-color: #218838;
+        }
+
+        .btn-validate {
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background-color: #ffc107;
+        }
+
+        .btn-validate:hover {
+            background-color: #e0a800;
+        }
+
+        .btn-validate.commerciale {
+            background-color: #ff851b;
+        }
+
+        .btn-validate.generale {
+            background-color: #17a2b8;
+        }
+
+        .btn-validate.commerciale:hover {
+            background-color: #d66d00;
+        }
+
+        .btn-validate.generale:hover {
+            background-color: #138496;
+        }
+
+        .validated {
+            background-color: #28a745;
+            color: white;
+            padding: 0.5rem 1.2rem;
+            border-radius: 5px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-validation a,
+        .footer-validation span {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
 </head>
@@ -371,6 +490,15 @@
                         <a class="btn-view" target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
                         <a class="btn-hide" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye-slash"></i> Masquer</a>
                         <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-edit"></i> Modifier</a>
+                    </div>
+                    <div class="footer-validation">
+                        <?php if (!$de['validation_commerciale']) : ?>
+                            <a class="btn-validate commerciale" href="request/valider_commerciale.php?devisId=<?= $de['id'] ?>"><i class="fas fa-check-circle"></i> Valider Commerciale</a>
+                        <?php elseif (!$de['validation_generale']) : ?>
+                            <a class="btn-validate generale" href="request/valider_generale.php?devisId=<?= $de['id'] ?>"><i class="fas fa-check-circle"></i> Valider Générale</a>
+                        <?php else : ?>
+                            <span class="validated"><i class="fas fa-check-double"></i> Déjà Validé</span>
+                        <?php endif; ?>
                     </div>
                 </div>
             <?php endforeach; ?>

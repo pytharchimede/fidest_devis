@@ -4,6 +4,17 @@ session_start();
 include('../fpdf186/fpdf.php');
 include('../../logi/connex.php');
 require_once("../phpqrcode/qrlib.php");
+require_once("../model/User.php");
+require_once("../model/Database.php");
+require_once("../model/Devis.php");
+
+
+$pdo = Database::getConnection();
+$userObj = new User($pdo);
+$devisObj = new Devis($pdo);
+
+$directeurCommercial = $userObj->findDirecteurCommercial();
+$directeurGeneral = $userObj->findDirecteurGeneral();
 
 // Vérifiez que le devisId est défini dans la session ou dans l'URL
 if (!isset($_SESSION['devisId']) && !isset($_GET['devisId'])) {
@@ -34,13 +45,13 @@ $lignes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupérer le client
 $stmt  = $con->prepare("SELECT * FROM client WHERE id_client =:A ");
-$stmt->execute(array('A'=>$devis['client_id']));
+$stmt->execute(array('A' => $devis['client_id']));
 $client = $stmt->fetch();
 
 
 // Récupérer le client
 $stmt  = $con->prepare("SELECT * FROM offre WHERE id_offre =:A ");
-$stmt->execute(array('A'=>$devis['offre_id']));
+$stmt->execute(array('A' => $devis['offre_id']));
 $offre = $stmt->fetch();
 
 if (!$client) {
@@ -66,49 +77,46 @@ if (!$devis) {
 // Créez une classe dérivée de FPDF
 class PDF extends FPDF
 {
-    
+
     // Méthode pour l'en-tête
     function Header()
     {
         $this->SetFont('Arial', 'B', 12);
         $this->Cell(0, 10, '', 0, 1, 'C');
         $this->Ln(10);
-        
-        $this->Image('../../img/logo_veritas.jpg', 150,10,30);	
 
+        $this->Image('../../img/logo_veritas.jpg', 150, 10, 30);
     }
-    
+
     // Méthode pour le pied de page
     function Footer()
     {
-        
+
         // Dessiner une ligne grise
         $this->SetDrawColor(0, 0, 0); // Couleur de la ligne grise
         $this->Line(10, 272, 200, 272); // Position de la ligne (10 mm du bord gauche à 260 mm du bord haut)
-        
-        
-    	// Position at 1.5 cm from bottom
+
+
+        // Position at 1.5 cm from bottom
         $this->SetY(-22);
-    	
-    //    $this->Image('../../img/logo_veritas.jpg', 10,275,30);	
-        
+
+        //    $this->Image('../../img/logo_veritas.jpg', 10,275,30);	
+
         // Arial italic 8
-        $this->SetFont('Arial','',7);
-    
-    	$this->Cell(0,3.5,utf8_decode("FOURNITURES INDUSTRIELLES, DEPANNAGE ET TRAVAUX PUBLIQUES - Au capital de 10 000 000 F CFA - Siège Social : Abidjan, Koumassi, Zone industrielle"),0,1,'C');
-    	$this->Cell(0,3.5,utf8_decode("01 BP 1642 Abidjan 01 - Téléphone : (+225) +225 27-21-36-27-27  -  Email : info@fidest.org - RCCM : CI-ABJ-2017-B-20163  -  N° CC : 010274200088"),0,1,'C');
+        $this->SetFont('Arial', '', 7);
 
-    //	$this->Image('logo.jpg', 172,275,30);	
-    	
+        $this->Cell(0, 3.5, utf8_decode("FOURNITURES INDUSTRIELLES, DEPANNAGE ET TRAVAUX PUBLIQUES - Au capital de 10 000 000 F CFA - Siège Social : Abidjan, Koumassi, Zone industrielle"), 0, 1, 'C');
+        $this->Cell(0, 3.5, utf8_decode("01 BP 1642 Abidjan 01 - Téléphone : (+225) +225 27-21-36-27-27  -  Email : info@fidest.org - RCCM : CI-ABJ-2017-B-20163  -  N° CC : 010274200088"), 0, 1, 'C');
+
+        //	$this->Image('logo.jpg', 172,275,30);	
+
         // Page number
-        $this->Cell(0,10,'Page '.$this->PageNo().'/{nb}',0,0,'C');
-    	
-    } 
-
-
+        $this->Cell(0, 10, 'Page ' . $this->PageNo() . '/{nb}', 0, 0, 'C');
+    }
 }
 
-function dateEnToutesLettres($date) {
+function dateEnToutesLettres($date)
+{
     // Définir les mois en français
     $mois = [
         1 => 'janvier',
@@ -135,7 +143,7 @@ function dateEnToutesLettres($date) {
 }
 
 // Créez un nouvel objet FPDF
-$pdf = new PDF('P','mm','A4');
+$pdf = new PDF('P', 'mm', 'A4');
 $pdf->AddPage();
 $pdf->SetFont('Arial', 'B', 16);
 $pdf->AliasNbPages();
@@ -145,13 +153,13 @@ $pdf->AddFont('BookAntiqua', 'B', 'bookantiqua_bold.php'); // Pour le style gras
 $pdf->SetFont('BookAntiqua', '', 12); // Utiliser la police Book Antiqua normale
 
 // Générer le QR code
-$qrCodeData = 'https://fidest.ci/devis/request/export_pdf.php?devisId='.$devis['id']; // Remplacez ceci par les données pour le QR code
+$qrCodeData = 'https://fidest.ci/devis/request/export_pdf.php?devisId=' . $devis['id']; // Remplacez ceci par les données pour le QR code
 $qrCodeFile = '../qrCodeFile/qrcode.png'; // Nom du fichier QR code
 QRcode::png($qrCodeData, $qrCodeFile, 'L', 4, 2); // Générer le QR code
 
 // Ajouter le logo à gauche
-if(isset($devis['logo']) && $devis['logo']!=''){
-$pdf->Image('../logo/'.$devis['logo'], 10, 10, 40); // Position (10, 10) avec une largeur de 30
+if (isset($devis['logo']) && $devis['logo'] != '') {
+    $pdf->Image('../logo/' . $devis['logo'], 10, 10, 40); // Position (10, 10) avec une largeur de 30
 }
 
 // Ajouter le QR code à droite du logo
@@ -187,21 +195,21 @@ $pdf->Cell(0, 5, utf8_decode($client['pays_client']), 0, 1, 'L');
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetFont('BookAntiqua', 'B', 10);
 $pdf->SetXY(135, 50); // Position de la première ligne
-$pdf->Cell(0, 5, utf8_decode('N° d\'offre: '.$offre['num_offre']), 0, 1, 'L');
+$pdf->Cell(0, 5, utf8_decode('N° d\'offre: ' . $offre['num_offre']), 0, 1, 'L');
 
 $pdf->SetFont('Arial', '', 8);
 $pdf->AddFont('BookAntiqua', '', 8); // Pour le style normal
 $pdf->SetXY(135, 55); // Position de la deuxième ligne
-$pdf->Cell(0, 5, utf8_decode('Date: '.dateEnToutesLettres($offre['date_offre'])), 0, 1, 'L');
+$pdf->Cell(0, 5, utf8_decode('Date: ' . dateEnToutesLettres($offre['date_offre'])), 0, 1, 'L');
 
 $pdf->SetXY(135, 60); // Position de la troisième ligne
-$pdf->Cell(0, 5, utf8_decode('Référence: '.$offre['reference_offre']), 0, 1, 'L');
+$pdf->Cell(0, 5, utf8_decode('Référence: ' . $offre['reference_offre']), 0, 1, 'L');
 /*
 $pdf->SetXY(150, 65); // Position de la quatrième ligne
 $pdf->Cell(0, 5, utf8_decode('Votre numéro client: 1064'), 0, 1, 'L');
 */
 $pdf->SetXY(135, 65); // Position de la cinquième ligne
-$pdf->Cell(0, 5, utf8_decode('Votre interlocuteur: '.$offre['commercial_dedie']), 0, 1, 'L');
+$pdf->Cell(0, 5, utf8_decode('Votre interlocuteur: ' . $offre['commercial_dedie']), 0, 1, 'L');
 
 $pdf->Ln(10); // Ajouter un espace après les informations
 
@@ -261,7 +269,7 @@ foreach ($lignes as $i => $ligne) {
     $pdf->AddFont('BookAntiqua', '', 8); // Pour le style normal
     $pdf->Cell(20, 10, $ligne['quantite'], 1);
     $pdf->Cell(45, 10, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1);
-   // $pdf->Cell(15, 10, number_format($ligne['tva'], 0, ',', ' ') . ' XOF', 1);
+    // $pdf->Cell(15, 10, number_format($ligne['tva'], 0, ',', ' ') . ' XOF', 1);
     $pdf->Cell(30, 10, number_format($ligne['total'], 0, ',', ' ') . ' XOF', 1);
     $pdf->Ln();
 }
@@ -312,6 +320,100 @@ $pdf->SetFont('Arial', '', 8); // Police normale pour les valeurs
 $pdf->SetFont('BookAntiqua', '', 8);
 $pdf->Cell(0, 5, utf8_decode('Habituelle entre nous'), 0, 1, 'L');
 
+// Espaces pour les signatures
+$pdf->Ln(5); // Ajouter un espace vertical
+
+$pdf->SetFont('BookAntiqua', 'BU', 10);
+
+// Intitulé légèrement à gauche pour Directeur Commercial
+$pdf->Cell(5); // Réduire l'espace initial à gauche
+$pdf->Cell(80, 10, utf8_decode('Directeur Commercial (Nom et Signature)'), 0, 0, 'L');
+
+// Intitulé à l'extrême droite pour Directeur Général
+$pdf->Cell(100, 10, utf8_decode('Directeur Général (Nom et Signature)'), 0, 1, 'R');
+
+$pdf->Ln(1); // Espace sous les titres des signatures
+
+// Récupération des signatures
+$signatureCommercial = '../signatures/' . $directeurCommercial['signature'];
+$signatureGeneral = '../signatures/' . $directeurGeneral['signature'];
+
+// Boîtes pour les signatures avec insertion des images
+$pdf->Cell(5);
+
+// Signature du Directeur Commercial
+if ($devisObj->isValidCommercial($devisId)) {  // Vérifie si la validation commerciale a eu lieu
+
+    list($widthCommercial, $heightCommercial) = getimagesize($signatureCommercial);
+    $aspectRatioCommercial = $widthCommercial / $heightCommercial;
+
+    // Augmenter la taille maximale
+    $maxWidthCommercial = 150;  // Augmenter la largeur maximale
+    $maxHeightCommercial = 50;  // Augmenter la hauteur maximale
+
+    if ($aspectRatioCommercial > 1) {
+        $newWidthCommercial = $maxWidthCommercial;
+        $newHeightCommercial = $maxWidthCommercial / $aspectRatioCommercial;
+    } else {
+        $newHeightCommercial = $maxHeightCommercial;
+        $newWidthCommercial = $maxHeightCommercial * $aspectRatioCommercial;
+    }
+    $pdf->Cell(80, 30, $pdf->Image($signatureCommercial, $pdf->GetX() + ($maxWidthCommercial - $newWidthCommercial) / 2 - 30, $pdf->GetY() + ($maxHeightCommercial - $newHeightCommercial) / 2, $newWidthCommercial, $newHeightCommercial), 1, 0, 'C');
+}
+
+// Espace entre les boîtes
+$pdf->Cell(30);
+
+// Signature du Directeur Général
+if ($devisObj->isValidGenerale($devisId)) {  // Vérifie si la validation générale a eu lieu
+
+    list($widthGeneral, $heightGeneral) = getimagesize($signatureGeneral);
+    $aspectRatioGeneral = $widthGeneral / $heightGeneral;
+
+    // Réduire les dimensions maximales pour la signature
+    $maxWidthGeneral = 60;  // Réduire la largeur maximale
+    $maxHeightGeneral = 20; // Réduire la hauteur maximale
+
+    if ($aspectRatioGeneral > 1) {
+        $newWidthGeneral = $maxWidthGeneral;
+        $newHeightGeneral = $maxWidthGeneral / $aspectRatioGeneral;
+    } else {
+        $newHeightGeneral = $maxHeightGeneral;
+        $newWidthGeneral = $maxHeightGeneral * $aspectRatioGeneral;
+    }
+
+    // Positionner plus bas : décaler l'axe Y actuel de 10 unités
+    $pdf->SetY($pdf->GetY() + 10); // Décalage vertical de 10 unités (ajustez cette valeur si nécessaire)
+
+    // Positionner la signature à droite, dans la deuxième cellule
+    $pdf->Cell(125); // Cette cellule vide pousse la signature à droite
+    $pdf->Cell(80, 30, $pdf->Image($signatureGeneral, $pdf->GetX() + ($maxWidthGeneral - $newWidthGeneral) / 2, $pdf->GetY() + ($maxHeightGeneral - $newHeightGeneral) / 2, $newWidthGeneral, $newHeightGeneral), 1, 1, 'C');
+}
+
+$pdf->SetFont('BookAntiqua', '', 10);
+
+// Intitulé légèrement à gauche pour Directeur Commercial
+$pdf->Cell(5); // Réduire l'espace initial à gauche
+if ($devisObj->isValidCommercial($devisId)) {  // Vérifie si la validation commerciale a eu lieu
+    $pdf->Cell(80, 10, utf8_decode($directeurCommercial['prenom'] . ' ' . $directeurCommercial['nom']), 0, 0, 'L');
+} else {
+    $pdf->Cell(80, 10, utf8_decode('En Attente de validation...'), 0, 0, 'L');
+}
+
+
+// Intitulé à l'extrême droite pour Directeur Général
+if ($devisObj->isValidGenerale($devisId)) {  // Vérifie si la validation générale a eu lieu
+    $pdf->Cell(100, 10, utf8_decode($directeurGeneral['prenom'] . ' ' . $directeurGeneral['nom']), 0, 1, 'R');
+} else {
+    $pdf->Cell(80, 10, utf8_decode('En Attente de validation...'), 0, 0, 'L');
+}
+
+
+// Boîtes pour les signatures
+$pdf->Cell(5); // Ajustement de l'espace à gauche
+$pdf->Cell(80, 30, '', 1, 0, 'C'); // Boîte pour la signature du Directeur Commercial
+$pdf->Cell(10); // Espace entre les boîtes
+$pdf->Cell(80, 30, '', 1, 1, 'C'); // Boîte pour la signature du Directeur Général
 
 
 // Effacez tout contenu précédent envoyé
@@ -327,4 +429,3 @@ $pdf->Output('I', 'devis_' . $devis['id'] . '.pdf');
 unset($_SESSION['devisId']);
 
 exit();
-?>

@@ -36,4 +36,28 @@ class User
     {
         return isset($user[$permission]) && $user[$permission] == 1;
     }
+
+    public function findDirecteurCommercial()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT u.* 
+        FROM user_devis u
+        INNER JOIN role_devis r ON u.role_id = r.id_role_devis
+        WHERE r.lib_role_devis = :libelle AND u.active = 1
+    ");
+        $stmt->execute(['libelle' => 'directeur commercial']);
+        return $stmt->fetch();
+    }
+
+    public function findDirecteurGeneral()
+    {
+        $stmt = $this->pdo->prepare("
+        SELECT u.* 
+        FROM user_devis u
+        INNER JOIN role_devis r ON u.role_id = r.id_role_devis
+        WHERE r.lib_role_devis = :libelle AND u.active = 1
+    ");
+        $stmt->execute(['libelle' => 'directeur general']);
+        return $stmt->fetch();
+    }
 }
