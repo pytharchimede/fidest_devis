@@ -28,7 +28,7 @@ if (isset($_GET['id'])) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mail_pro = $_POST['mail_pro'];
     $password = $_POST['password'];
-    $hashedPassword = !empty($password) ? password_hash($password, PASSWORD_DEFAULT) : $user['password']; // Si le mot de passe est vide, garder l'ancien
+    $hashedPassword = !empty($password) ? hash("sha512", $password) : $user['password'];
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
     $modifier_devis = isset($_POST['modifier_devis']) ? 1 : 0;

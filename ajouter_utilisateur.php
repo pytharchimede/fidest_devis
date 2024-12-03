@@ -9,7 +9,8 @@ $userModel = new User($pdo);
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mail_pro = $_POST['mail_pro'];
     $password = $_POST['password']; // Le mot de passe doit être haché
-    $hashedPassword = password_hash($password, PASSWORD_DEFAULT); // Hachage sécurisé
+    $hashedPassword = hash("sha512", $password);
+
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
     $modifier_devis = isset($_POST['modifier_devis']) ? 1 : 0;
