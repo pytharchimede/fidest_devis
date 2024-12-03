@@ -1,26 +1,27 @@
 <?php
-    session_start();
-    include('../logi/connex.php');
+include 'auth_check.php';
+include('../logi/connex.php');
 
-    $devis = $con->prepare('SELECT * FROM devis');
-    $devis->execute();
-    
-    $nb_devis = $devis->rowcount();
-    $index_actuel = $nb_devis+1;
-    
-    $code_devis = 'FI-DEV-PAB-'.$index_actuel;
-    
-    // Récupérer les clients
-    $clients = $con->prepare('SELECT * FROM client');
-    $clients->execute();
-    
-    // Récupérer les offres
-    $offres = $con->prepare('SELECT * FROM offre');
-    $offres->execute();
+$devis = $con->prepare('SELECT * FROM devis');
+$devis->execute();
+
+$nb_devis = $devis->rowcount();
+$index_actuel = $nb_devis + 1;
+
+$code_devis = 'FI-DEV-PAB-' . $index_actuel;
+
+// Récupérer les clients
+$clients = $con->prepare('SELECT * FROM client');
+$clients->execute();
+
+// Récupérer les offres
+$offres = $con->prepare('SELECT * FROM offre');
+$offres->execute();
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,6 +30,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
 
     <!-- Menu -->
@@ -41,26 +43,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="generer_devis.php">Générer un devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_devis.php">Liste des devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_facture.php">Liste des factures</a>
-                    </li>
-                       <li class="nav-item">
-                        <a class="nav-link" href="liste_client.php">Liste des clients</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_offre.php">Liste des offres</a>
-                    </li>
-                </ul>
+                <?php include 'menu.php'; ?>
             </div>
         </div>
     </nav>
@@ -68,7 +51,7 @@
 
     <div class="container mt-4">
         <h1 class="text-center">Rédiger un Devis</h1>
-        
+
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="clientSelect" class="form-label">Sélectionner le client</label>
@@ -101,7 +84,7 @@
                 <input type="text" class="form-control" id="correspondant" name="correspondant" placeholder="Correspondant">
             </div>
         </div>
-        
+
         <div class="checkbox_zone">
             <div class="form-group">
                 <label for="tvaFacturable">TVA Facturable</label>
@@ -110,7 +93,7 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-            
+
             <div class="form-group">
                 <label for="publierDevis">Publier le devis</label>
                 <label class="switch">
@@ -191,49 +174,49 @@
             <button type="button" class="btn btn-success mt-3" id="addRow">+ Ajouter une ligne</button>
         </form>
 
-    <!-- Additional Info Section -->
-    <div class="row footer-info mt-4">
-        <div class="col-md-8">
-            <div class="form-group">
-                <label for="termesConditions" class="form-label">Termes et conditions</label>
-                <textarea class="form-control" id="termesConditions" name="termesConditions" rows="5" placeholder="Termes et conditions"></textarea>
+        <!-- Additional Info Section -->
+        <div class="row footer-info mt-4">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label for="termesConditions" class="form-label">Termes et conditions</label>
+                    <textarea class="form-control" id="termesConditions" name="termesConditions" rows="5" placeholder="Termes et conditions"></textarea>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="piedDePage" class="form-label">Pied de page</label>
+                    <textarea class="form-control" id="piedDePage" name="piedDePage" rows="5" placeholder="Pied de page"></textarea>
+                </div>
             </div>
-            <div class="form-group mt-3">
-                <label for="piedDePage" class="form-label">Pied de page</label>
-                <textarea class="form-control" id="piedDePage" name="piedDePage" rows="5" placeholder="Pied de page"></textarea>
+            <div class="col-md-4">
+                <div class="form-group mt-3">
+                    <label for="totalHT" class="form-label">Total HT</label>
+                    <input type="text" class="form-control" id="totalHT" name="totalHT" readonly>
+                </div>
+                <div class="form-group mt-3 tvaZone">
+                    <label for="tva" class="form-label">TVA 18%</label>
+                    <input type="text" class="form-control" id="tva" name="tva" readonly>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="totalTTC" class="form-label">Total TTC</label>
+                    <input type="text" class="form-control" id="totalTTC" name="totalTTC" readonly>
+                </div>
+                <!-- Buttons -->
+                <div class="btn-group d-flex flex-column mt-3">
+                    <button type="button" class="btn btn-primary mt-2" id="saveBtn" style="margin-bottom:2px;">
+                        <i class="fas fa-save"></i> Enregistrer le Devis
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportPdfBtn">
+                        <i class="fas fa-file-pdf"></i> Exporter PDF
+                    </button>
+                </div>
             </div>
         </div>
-       <div class="col-md-4">
-            <div class="form-group mt-3">
-                <label for="totalHT" class="form-label">Total HT</label>
-                <input type="text" class="form-control" id="totalHT" name="totalHT" readonly>
-            </div>
-            <div class="form-group mt-3 tvaZone">
-                <label for="tva" class="form-label">TVA 18%</label>
-                <input type="text" class="form-control" id="tva" name="tva" readonly>
-            </div>
-            <div class="form-group mt-3">
-                <label for="totalTTC" class="form-label">Total TTC</label>
-                <input type="text" class="form-control" id="totalTTC" name="totalTTC" readonly>
-            </div>
-            <!-- Buttons -->
-            <div class="btn-group d-flex flex-column mt-3">
-                <button type="button" class="btn btn-primary mt-2" id="saveBtn" style="margin-bottom:2px;">
-                    <i class="fas fa-save"></i> Enregistrer le Devis
-                </button>
-                <button type="button" class="btn btn-secondary" id="exportPdfBtn">
-                    <i class="fas fa-file-pdf"></i> Exporter PDF
-                </button>
-            </div>
-        </div>
+
+
     </div>
 
 
-    </div>
-
-
-     <!-- Footer -->
-     <footer class="footer">
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
             <div class="text-center">
                 <p>&copy; <?php echo gmdate('Y'); ?> FIDEST. Tous droits réservés.</p>
@@ -251,6 +234,7 @@
     <script src="js/script.js"></script>
     <!--Intégration de jquery/Ajax-->
     <script src="../logi/js/jquery_1.7.1_jquery.min.js"></script>
-	<script src="js/function.js"></script> 
+    <script src="js/function.js"></script>
 </body>
+
 </html>

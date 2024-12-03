@@ -1,0 +1,23 @@
+.message {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.spinner {
+    font-size: 1.5rem;
+    color: #1d2b57;
+    margin-top: 1rem;
+}

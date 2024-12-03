@@ -1,5 +1,7 @@
+<?php include 'auth_check.php'; ?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,20 +17,24 @@
             padding: 1rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .client-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+
         .client-card .client-name {
             font-size: 1.25rem;
             font-weight: bold;
             color: #1d2b57;
         }
+
         .client-card .client-info {
             margin-top: 0.5rem;
         }
     </style>
 </head>
+
 <body>
 
     <!-- Menu -->
@@ -41,26 +47,7 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="generer_devis.php">Générer un devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_devis.php">Liste des devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_facture.php">Liste des factures</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="liste_client.php">Liste des clients</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_offre.php">Liste des offres</a>
-                    </li>
-                </ul>
+                <?php include 'menu.php'; ?>
             </div>
         </div>
     </nav>
@@ -80,7 +67,7 @@
             <!-- PHP code to fetch and display clients from the database -->
             <?php
             include('../logi/connex.php');
-            
+
             $query = $con->prepare('SELECT * FROM client');
             $query->execute();
             $clients = $query->fetchAll(PDO::FETCH_ASSOC);
@@ -166,4 +153,5 @@
     <script src="../logi/js/jquery_1.7.1_jquery.min.js"></script>
     <script src="js/function.js"></script>
 </body>
+
 </html>
