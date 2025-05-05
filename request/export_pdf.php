@@ -220,7 +220,7 @@ $pdf->Cell(50, 10, utf8_decode('Devis N° ' . $devis['numero_devis']), 0, 0, 'L'
 
 $pdf->SetFont('Arial', '', 10);
 $pdf->SetFont('BookAntiqua', '', 10);
-$pdf->Cell(0, 10, utf8_decode(' à l\'attention de ' . $devis['correspondant']), 0, 1, 'L');
+$pdf->Cell(0, 10, utf8_decode('   à l\'attention de ' . $devis['correspondant']), 0, 1, 'L');
 
 $pdf->SetFont('Arial', '', 8);
 $pdf->SetFont('BookAntiqua', '', 8);
@@ -245,8 +245,8 @@ $pdf->SetDrawColor(169, 169, 169); // Couleur des lignes de bordure gris clair (
 $pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
 $pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
 $pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
-$pdf->Cell(45, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
-//$pdf->Cell(15, 10, utf8_decode('TVA'), 1, 0, 'C', true);
+$pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
+$pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
 $pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
 $pdf->Ln();
 
@@ -256,7 +256,7 @@ $pdf->SetFillColor(255, 255, 255); // Remplissage blanc (ou transparent pour les
 $pdf->SetDrawColor(0, 0, 0); // Couleur des lignes de bordure noire
 $pdf->SetDrawColor(255, 255, 255); // Couleur des lignes de bordure blanc
 
-
+$tvaFacturable = $devis['tva_facturable'] == 1;
 
 $pdf->SetFont('Arial', '', 8);
 $pdf->SetFont('BookAntiqua', '', 8);
@@ -268,8 +268,10 @@ foreach ($lignes as $i => $ligne) {
     $pdf->SetFont('Arial', '', 8);
     $pdf->AddFont('BookAntiqua', '', 8); // Pour le style normal
     $pdf->Cell(20, 10, $ligne['quantite'], 1);
-    $pdf->Cell(45, 10, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1);
-    // $pdf->Cell(15, 10, number_format($ligne['tva'], 0, ',', ' ') . ' XOF', 1);
+    $pdf->Cell(30, 10, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1);
+    $tvaMontant = ($tvaFacturable) ? number_format($ligne['quantite'] * ($ligne['prix'] * 0.18), 0, ',', ' ') : '0';
+
+    $pdf->Cell(20, 10, number_format($tvaMontant, 0, ',', ' ') . ' XOF', 1);
     $pdf->Cell(30, 10, number_format($ligne['total'], 0, ',', ' ') . ' XOF', 1);
     $pdf->Ln();
 }
