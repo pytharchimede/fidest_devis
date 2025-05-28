@@ -194,22 +194,39 @@ $pdf->Cell(0, 5, utf8_decode($client['pays_client']), 0, 1, 'L');
 // Positionnement individuel des informations du devis
 $pdf->SetFont('Arial', 'B', 10);
 $pdf->SetFont('BookAntiqua', 'B', 10);
-$pdf->SetXY(135, 50); // Position de la première ligne
-$pdf->Cell(0, 5, utf8_decode('N° d\'offre: ' . $offre['num_offre']), 0, 1, 'L');
 
+$x = 135;
+$y = 50;
+$w = 65;
+$h = 5;
+
+// Première ligne
+$pdf->SetXY($x, $y);
+$pdf->MultiCell($w, $h, utf8_decode('N° d\'offre: ' . $offre['num_offre']), 0, 'L');
+$y += $pdf->GetY() - $y; // Avance de la hauteur utilisée
+
+// Deuxième ligne
 $pdf->SetFont('Arial', '', 8);
-$pdf->AddFont('BookAntiqua', '', 8); // Pour le style normal
-$pdf->SetXY(135, 55); // Position de la deuxième ligne
-$pdf->Cell(0, 5, utf8_decode('Date: ' . dateEnToutesLettres($offre['date_offre'])), 0, 1, 'L');
+$pdf->AddFont('BookAntiqua', '', 8);
+$pdf->SetXY($x, $y);
+$pdf->MultiCell($w, $h, utf8_decode('Date: ' . dateEnToutesLettres($offre['date_offre'])), 0, 'L');
+$y += $pdf->GetY() - $y;
 
-$pdf->SetXY(135, 60); // Position de la troisième ligne
-$pdf->Cell(0, 5, utf8_decode('Référence: ' . $offre['reference_offre']), 0, 1, 'L');
+// Troisième ligne
+$pdf->SetXY($x, $y);
+$pdf->MultiCell($w, $h, utf8_decode('Référence: ' . $offre['reference_offre']), 0, 'L');
+$y += $pdf->GetY() - $y;
+
+// Quatrième ligne (commentée)
 /*
-$pdf->SetXY(150, 65); // Position de la quatrième ligne
+$pdf->SetXY(150, $y);
 $pdf->Cell(0, 5, utf8_decode('Votre numéro client: 1064'), 0, 1, 'L');
 */
-$pdf->SetXY(135, 65); // Position de la cinquième ligne
-$pdf->Cell(0, 5, utf8_decode('Votre interlocuteur: ' . $offre['commercial_dedie']), 0, 1, 'L');
+
+// Cinquième ligne
+$pdf->SetXY($x, $y);
+$pdf->MultiCell($w, $h, utf8_decode('Votre interlocuteur: ' . $offre['commercial_dedie']), 0, 'L');
+$y += $pdf->GetY() - $y;
 
 $pdf->Ln(10); // Ajouter un espace après les informations
 
@@ -220,7 +237,7 @@ $pdf->Cell(50, 10, utf8_decode('Devis N° ' . $devis['numero_devis']), 0, 0, 'L'
 
 $pdf->SetFont('Arial', '', 10);
 $pdf->SetFont('BookAntiqua', '', 10);
-$pdf->Cell(0, 10, utf8_decode(' à l\'attention de ' . $devis['correspondant']), 0, 1, 'L');
+$pdf->Cell(0, 10, utf8_decode('   à l\'attention de ' . $devis['correspondant']), 0, 1, 'L');
 
 $pdf->SetFont('Arial', '', 8);
 $pdf->SetFont('BookAntiqua', '', 8);
@@ -245,8 +262,8 @@ $pdf->SetDrawColor(169, 169, 169); // Couleur des lignes de bordure gris clair (
 $pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
 $pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
 $pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
-$pdf->Cell(45, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
-//$pdf->Cell(15, 10, utf8_decode('TVA'), 1, 0, 'C', true);
+$pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
+$pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
 $pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
 $pdf->Ln();
 
@@ -256,7 +273,7 @@ $pdf->SetFillColor(255, 255, 255); // Remplissage blanc (ou transparent pour les
 $pdf->SetDrawColor(0, 0, 0); // Couleur des lignes de bordure noire
 $pdf->SetDrawColor(255, 255, 255); // Couleur des lignes de bordure blanc
 
-
+$tvaFacturable = $devis['tva_facturable'] == 1;
 
 $pdf->SetFont('Arial', '', 8);
 $pdf->SetFont('BookAntiqua', '', 8);
@@ -268,8 +285,10 @@ foreach ($lignes as $i => $ligne) {
     $pdf->SetFont('Arial', '', 8);
     $pdf->AddFont('BookAntiqua', '', 8); // Pour le style normal
     $pdf->Cell(20, 10, $ligne['quantite'], 1);
-    $pdf->Cell(45, 10, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1);
-    // $pdf->Cell(15, 10, number_format($ligne['tva'], 0, ',', ' ') . ' XOF', 1);
+    $pdf->Cell(30, 10, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1);
+    $tvaMontant = ($tvaFacturable) ? number_format($ligne['quantite'] * ($ligne['prix'] * 0.18), 0, ',', ' ') : '0';
+
+    $pdf->Cell(20, 10, number_format($tvaMontant, 0, ',', ' ') . ' XOF', 1);
     $pdf->Cell(30, 10, number_format($ligne['total'], 0, ',', ' ') . ' XOF', 1);
     $pdf->Ln();
 }
