@@ -270,8 +270,7 @@ $pdf->Ln();
 // Réinitialiser les couleurs de texte, de remplissage, et des bordures pour le reste du tableau
 $pdf->SetTextColor(0, 0, 0); // Texte en noir
 $pdf->SetFillColor(255, 255, 255); // Remplissage blanc (ou transparent pour les lignes du tableau)
-$pdf->SetDrawColor(0, 0, 0); // Couleur des lignes de bordure noire
-$pdf->SetDrawColor(255, 255, 255); // Couleur des lignes de bordure blanc
+$pdf->SetDrawColor(220, 220, 220); // Couleur des lignes de bordure gris clair
 
 $tvaFacturable = $devis['tva_facturable'] == 1;
 
