@@ -277,17 +277,58 @@ $tvaFacturable = $devis['tva_facturable'] == 1;
 
 $pdf->SetFont('Arial', '', 8);
 $pdf->SetFont('BookAntiqua', '', 8);
+
+$ligneHauteur = 10; // hauteur d'une ligne du tableau
+$blocTotalHauteur = 35; // hauteur estimée pour les totaux/signatures
+
+$nbLignes = count($lignes);
 foreach ($lignes as $i => $ligne) {
+    // Si c'est la dernière ligne, prévoir la place pour les totaux
+    $resteBloc = ($i == $nbLignes - 1) ? $blocTotalHauteur : 0;
+
+    // Si la ligne ne tient pas sur la page, on saute
+    if ($pdf->GetY() + $ligneHauteur + $resteBloc > 270) {
+        // Mention de poursuite
+        $pdf->SetFont('Arial', 'I', 8);
+        $pdf->SetTextColor(150, 150, 150); // gris
+        $pdf->Cell(0, 8, utf8_decode('Le tableau se poursuit à la page suivante...'), 0, 1, 'C');
+        $pdf->SetTextColor(0, 0, 0); // noir
+        $pdf->AddPage();
+
+        // Réafficher l'en-tête du tableau
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetFont('BookAntiqua', 'B', 8);
+        $pdf->SetFillColor(0, 0, 0);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetDrawColor(169, 169, 169);
+        $pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
+        $pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
+        $pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
+        $pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
+        $pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
+        $pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
+        $pdf->Ln();
+
+        // Réinitialiser les couleurs
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->SetDrawColor(255, 255, 255); // Couleur des lignes de bordure blanc
+
+
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont('BookAntiqua', '', 8);
+    }
+
+    // Affichage de la ligne
     $pdf->Cell(10, 10, $i + 1, 1);
     $pdf->SetFont('Arial', 'B', 8);
-    $pdf->AddFont('BookAntiqua', 'B', 8); // Pour le style normal
+    $pdf->AddFont('BookAntiqua', 'B', 8);
     $pdf->Cell(85, 10, utf8_decode($ligne['designation']), 1);
     $pdf->SetFont('Arial', '', 8);
-    $pdf->AddFont('BookAntiqua', '', 8); // Pour le style normal
+    $pdf->AddFont('BookAntiqua', '', 8);
     $pdf->Cell(20, 10, $ligne['quantite'], 1);
     $pdf->Cell(30, 10, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1);
     $tvaMontant = ($tvaFacturable) ? number_format($ligne['quantite'] * ($ligne['prix'] * 0.18), 0, ',', ' ') : '0';
-
     $pdf->Cell(20, 10, number_format($tvaMontant, 0, ',', ' ') . ' XOF', 1);
     $pdf->Cell(30, 10, number_format($ligne['total'], 0, ',', ' ') . ' XOF', 1);
     $pdf->Ln();
