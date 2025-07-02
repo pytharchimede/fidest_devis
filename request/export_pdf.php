@@ -289,6 +289,7 @@ foreach ($lignes as $i => $ligne) {
 
     // Estimation de la hauteur de la ligne si besoin
     if ($pdf->GetY() + $ligneHauteur + $resteBloc > 270) {
+
         // Afficher le message de poursuite
         $pdf->SetFont('Arial', 'I', 8);
         $pdf->SetTextColor(150, 150, 150); // gris
