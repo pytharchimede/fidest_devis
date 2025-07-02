@@ -288,48 +288,43 @@ $nbLignes = count($lignes);
 foreach ($lignes as $i => $ligne) {
     $resteBloc = ($i == $nbLignes - 1) ? $blocTotalHauteur : 0;
 
+    // Estimation de la hauteur de la ligne si besoin
     if ($pdf->GetY() + $ligneHauteur + $resteBloc > 270) {
-        // Mention de poursuite
+        // Afficher le message de poursuite
         $pdf->SetFont('Arial', 'I', 8);
         $pdf->SetTextColor(150, 150, 150); // gris
         $pdf->Cell(0, 8, utf8_decode('Le tableau se poursuit à la page suivante...'), 0, 1, 'C');
         $pdf->SetTextColor(0, 0, 0); // noir
 
-        // Correction ici : n'ajouter une page QUE si ce n'est pas la dernière ligne
-        if ($i < $nbLignes - 1) {
-            $pdf->AddPage();
+        // Aller immédiatement à la page suivante
+        $pdf->AddPage();
 
-            // Réafficher l'en-tête du tableau
-            $pdf->SetFont('Arial', 'B', 8);
-            $pdf->SetFont('BookAntiqua', 'B', 8);
-            $pdf->SetFillColor(0, 0, 0);
-            $pdf->SetTextColor(255, 255, 255);
-            $pdf->SetDrawColor(169, 169, 169);
-            $pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
-            $pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
-            $pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
-            $pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
-            $pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
-            $pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
-            $pdf->Ln();
+        // Réafficher l'en-tête du tableau
+        $pdf->SetFont('Arial', 'B', 8);
+        $pdf->SetFont('BookAntiqua', 'B', 8);
+        $pdf->SetFillColor(0, 0, 0);
+        $pdf->SetTextColor(255, 255, 255);
+        $pdf->SetDrawColor(169, 169, 169);
+        $pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
+        $pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
+        $pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
+        $pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
+        $pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
+        $pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
+        $pdf->Ln();
 
-            // Réinitialiser les couleurs
-            $pdf->SetTextColor(0, 0, 0);
-            $pdf->SetFillColor(255, 255, 255);
-            $pdf->SetDrawColor(255, 255, 255);
+        // Réinitialiser les couleurs
+        $pdf->SetTextColor(0, 0, 0);
+        $pdf->SetFillColor(255, 255, 255);
+        $pdf->SetDrawColor(220, 220, 220);
 
-            $pdf->SetFont('Arial', '', 8);
-            $pdf->SetFont('BookAntiqua', '', 8);
-        }
-        // Si c'est la dernière ligne, NE PAS ajouter de page
+        $pdf->SetFont('Arial', '', 8);
+        $pdf->SetFont('BookAntiqua', '', 8);
     }
 
     // Sauvegarder la position de départ de la ligne
     $xStart = $pdf->GetX();
     $yStart = $pdf->GetY();
-
-    // Définir la couleur de bordure gris très clair pour la ligne (ex : RGB 220,220,220)
-    $pdf->SetDrawColor(220, 220, 220);
 
     // Colonne Pos.
     $pdf->Cell(10, 10, $i + 1, 1);
@@ -337,12 +332,12 @@ foreach ($lignes as $i => $ligne) {
     // Colonne Description (MultiCell pour retour à la ligne)
     $pdf->SetFont('Arial', 'B', 8);
     $pdf->AddFont('BookAntiqua', 'B', 8);
-    $pdf->SetXY($xStart + 10, $yStart);
+    $pdf->SetXY($xStart + 10, $yStart); // Positionner à droite de la colonne Pos.
     $pdf->MultiCell(85, 5, utf8_decode($ligne['designation']), 1, 'L');
 
     // Calculer la hauteur utilisée par la description
     $descHeight = $pdf->GetY() - $yStart;
-    $rowHeight = max($descHeight, 10);
+    $rowHeight = max($descHeight, 10); // 10 = hauteur min d'une ligne
 
     // Repositionner pour les autres colonnes sur la même ligne
     $pdf->SetXY($xStart + 10 + 85, $yStart);
@@ -351,16 +346,12 @@ foreach ($lignes as $i => $ligne) {
     $pdf->AddFont('BookAntiqua', '', 8);
     $pdf->Cell(20, $rowHeight, $ligne['quantite'], 1, 0, 'C');
     $pdf->Cell(30, $rowHeight, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1, 0, 'R');
-    $montantHTLigne = $ligne['quantite'] * $ligne['prix'];
-    $tvaMontant = ($tvaFacturable) ? $montantHTLigne * 0.18 : 0;
+    $tvaMontant = ($tvaFacturable) ? $ligne['quantite'] * $ligne['prix'] * 0.18 : 0;
     $pdf->Cell(20, $rowHeight, number_format($tvaMontant, 0, ',', ' ') . ' XOF', 1, 0, 'R');
     $pdf->Cell(30, $rowHeight, number_format($ligne['total'], 0, ',', ' ') . ' XOF', 1, 0, 'R');
 
     // Aller à la ligne suivante, à la bonne hauteur
     $pdf->Ln($rowHeight);
-
-    // Remettre la couleur de bordure à blanc pour le reste si besoin
-    $pdf->SetDrawColor(255, 255, 255);
 }
 
 // Ajouter un séparateur
@@ -504,6 +495,13 @@ $pdf->Cell(80, 40, '', 1, 0, 'C'); // Boîte pour la signature du Directeur Comm
 $pdf->Cell(10); // Espace entre les boîtes
 $pdf->Cell(80, 40, '', 1, 1, 'C'); // Boîte pour la signature du Directeur Général
 
+
+// Effacez tout contenu précédent envoyé
+if (ob_get_length()) ob_clean();
+
+// Définir les en-têtes pour le téléchargement du fichier
+header('Content-Type: application/pdf');
+header('Content-Disposition: inline; filename="devis_' . $devis['id'] . '.pdf"');
 
 // Générer le PDF et l'afficher dans le navigateur
 $pdf->Output('I', 'devis_' . $devis['id'] . '.pdf');
