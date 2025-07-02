@@ -328,11 +328,16 @@ foreach ($lignes as $i => $ligne) {
     // Colonne Pos.
     $pdf->Cell(10, 10, $i + 1, 1);
 
-    // Colonne Description (MultiCell pour retour à la ligne)
+    // Colonne Description (MultiCell pour retour à la ligne SANS soulignement intermédiaire)
     $pdf->SetFont('Arial', 'B', 8);
     $pdf->AddFont('BookAntiqua', 'B', 8);
-    $pdf->SetXY($xStart + 10, $yStart); // Positionner à droite de la colonne Pos.
-    $pdf->MultiCell(85, 5, utf8_decode($ligne['designation']), 1, 'L');
+    $pdf->SetXY($xStart + 10, $yStart);
+    $pdf->MultiCell(85, 5, utf8_decode($ligne['designation']), 'LR', 'L');
+
+    // Bordure du bas de la cellule description (pour fermer la ligne)
+    $currentY = $pdf->GetY();
+    $pdf->SetXY($xStart + 10, $yStart + $rowHeight - 0.2); // -0.2 pour éviter un double trait
+    $pdf->Cell(85, 0, '', 'B');
 
     // Calculer la hauteur utilisée par la description
     $descHeight = $pdf->GetY() - $yStart;
