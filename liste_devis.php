@@ -48,15 +48,15 @@
         }
 
         .card-header {
-            background-color: #1d2b57;
+            background: linear-gradient(135deg, #1d2b57 0%, #2b3f8a 100%);
             color: #ffffff;
-            font-weight: bold;
-            text-align: center;
-            padding: 1.2rem;
-            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: left;
+            padding: 1rem 1.25rem;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: .6rem;
         }
 
         .card-header i {
@@ -65,7 +65,7 @@
         }
 
         .card-body {
-            padding: 1.5rem;
+            padding: 1.25rem 1.25rem .75rem;
         }
 
         .info-grid p {
@@ -78,44 +78,59 @@
 
         .card-footer {
             display: flex;
-            justify-content: space-around;
+            justify-content: flex-start;
+            /* éviter les boutons centrés/collés */
             align-items: center;
+            gap: .6rem;
+            /* espace constant entre boutons */
+            flex-wrap: wrap;
+            /* s'adapte aux petites largeurs */
             background-color: #f8f9fa;
-            padding: 0.8rem;
+            padding: .8rem 1rem;
             border-top: 1px solid #e0e0e0;
         }
 
         .card-footer a {
-            color: #ffffff;
+            color: #fff;
             text-decoration: none;
-            font-weight: bold;
-            padding: 0.4rem 1rem;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            font-weight: 600;
+            padding: .55rem 1rem;
+            border-radius: 999px;
+            /* pill */
+            display: inline-flex;
+            align-items: center;
+            gap: .5rem;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .12);
+            transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+            white-space: nowrap;
         }
 
         .btn-view {
-            background-color: #007bff;
+            background: linear-gradient(135deg, #0d6efd, #0b5ed7);
         }
 
         .btn-view:hover {
-            background-color: #0056b3;
-        }
-
-        .btn-hide {
-            background-color: #6c757d;
-        }
-
-        .btn-hide:hover {
-            background-color: #5a6268;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(13, 110, 253, .35);
         }
 
         .btn-edit {
-            background-color: #28a745;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
         }
 
         .btn-edit:hover {
-            background-color: #218838;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(34, 197, 94, .35);
+        }
+
+        .btn-hide {
+            background: linear-gradient(135deg, #6c757d, #5c636a);
+        }
+
+        .btn-hide:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(108, 117, 125, .35);
         }
 
         .footer-actions {
@@ -138,10 +153,9 @@
         .btn-validate {
             color: #ffffff;
             text-decoration: none;
-            font-weight: bold;
-            padding: 0.5rem 1.2rem;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            font-weight: 600;
+            padding: .55rem 1rem;
+            border-radius: 999px;
         }
 
         .btn-view {
@@ -197,14 +211,15 @@
         }
 
         .validated {
-            background-color: #28a745;
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: white;
-            padding: 0.5rem 1.2rem;
-            border-radius: 5px;
-            font-weight: bold;
-            display: flex;
+            padding: .5rem 1rem;
+            border-radius: 999px;
+            font-weight: 700;
+            display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: .5rem;
+            box-shadow: 0 4px 10px rgba(34, 197, 94, .25);
         }
 
         .card {
@@ -488,9 +503,9 @@
                     </div>
                     <div class="card-footer">
                         <a class="btn-view" target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
-                        <a class="btn-edit" target="_blank" href="request/preview_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-magnifying-glass"></i> Aperçu PDF</a>
+                        <a class="btn-edit" target="_blank" href="request/preview_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-file-pdf"></i> Aperçu PDF</a>
+                        <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
                         <a class="btn-hide" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye-slash"></i> Masquer</a>
-                        <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-edit"></i> Modifier</a>
                     </div>
                     <div class="footer-validation">
                         <?php if (!$de['validation_commerciale']) : ?>
