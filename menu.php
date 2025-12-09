@@ -9,7 +9,7 @@
         <a class="nav-link" href="liste_devis.php">Devis</a>
     </li>
     <li class="nav-item">
-        <a class="nav-link" href="liste_devis.php#bl">Bons de livraison</a>
+        <a class="nav-link" href="liste_bl.php">Bons de livraison</a>
     </li>
     <li class="nav-item">
         <a class="nav-link" href="liste_facture.php">Factures</a>

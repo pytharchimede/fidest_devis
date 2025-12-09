@@ -12,11 +12,18 @@ $pdo = Database::getConnection();
 $userObj = new User($pdo);
 $devisObj = new Devis($pdo);
 
-// Vérifier le devisId via GET ou session
-if (!isset($_SESSION['devisId']) && !isset($_GET['devisId'])) {
+// Vérifier le devisId via GET (devisId ou id) ou session
+if (!isset($_SESSION['devisId']) && !isset($_GET['devisId']) && !isset($_GET['id'])) {
     die('ID de devis non défini.');
 }
-$devisId = isset($_GET['devisId']) ? (int)$_GET['devisId'] : (int)$_SESSION['devisId'];
+$devisId = null;
+if (isset($_GET['devisId'])) {
+    $devisId = (int)$_GET['devisId'];
+} elseif (isset($_GET['id'])) {
+    $devisId = (int)$_GET['id'];
+} else {
+    $devisId = (int)$_SESSION['devisId'];
+}
 $_SESSION['devisId'] = $devisId;
 
 // Charger devis, lignes, client

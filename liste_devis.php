@@ -366,6 +366,18 @@
         $query->execute();
 
         $devis = $query->fetchAll(PDO::FETCH_ASSOC);
+        // Charger registre des BL signés
+        $bl_registry = ['items' => []];
+        $regPath = __DIR__ . '/data/bl_registry.json';
+        if (file_exists($regPath)) {
+            $json = file_get_contents($regPath);
+            $tmp = json_decode($json, true);
+            if (is_array($tmp)) $bl_registry = $tmp;
+        }
+        $bl_index = [];
+        foreach ($bl_registry['items'] as $it) {
+            $bl_index[(int)$it['devisId']] = $it;
+        }
 
 
 
@@ -505,7 +517,13 @@
                         <a class="btn-view" target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
                         <a class="btn-edit" target="_blank" href="request/preview_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-file-pdf"></i> Aperçu PDF</a>
                         <a class="btn-edit" target="_blank" href="request/export_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-truck"></i> Générer BL</a>
-                        <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
+                        <?php if (isset($bl_index[(int)$de['id']])): $bl = $bl_index[(int)$de['id']]; ?>
+                            <a class="btn-view" target="_blank" href="<?= htmlspecialchars($bl['file']) ?>"><i class="fas fa-stamp"></i> Voir BL signé</a>
+                            <a class="btn-edit disabled" href="#" tabindex="-1" aria-disabled="true"><i class="fas fa-pen"></i> Modifier (verrouillé)</a>
+                        <?php else: ?>
+                            <a class="btn-edit" href="request/upload_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-upload"></i> Uploader BL signé</a>
+                            <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
+                        <?php endif; ?>
                         <a class="btn-hide" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye-slash"></i> Masquer</a>
                     </div>
                     <div class="footer-validation">
