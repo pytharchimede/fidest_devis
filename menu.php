@@ -12,6 +12,9 @@
         <a class="nav-link" href="liste_bl.php">Bons de livraison</a>
     </li>
     <li class="nav-item">
+        <a class="nav-link" href="liste_corbeille.php">Corbeille</a>
+    </li>
+    <li class="nav-item">
         <a class="nav-link" href="liste_facture.php">Factures</a>
     </li>
     <li class="nav-item">
