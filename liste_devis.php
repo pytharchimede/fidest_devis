@@ -504,6 +504,7 @@
                     <div class="card-footer">
                         <a class="btn-view" target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
                         <a class="btn-edit" target="_blank" href="request/preview_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-file-pdf"></i> Aperçu PDF</a>
+                        <a class="btn-edit" target="_blank" href="request/export_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-truck"></i> Générer BL</a>
                         <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
                         <a class="btn-hide" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye-slash"></i> Masquer</a>
                     </div>
