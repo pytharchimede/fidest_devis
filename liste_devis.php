@@ -124,13 +124,13 @@
             box-shadow: 0 6px 14px rgba(34, 197, 94, .35);
         }
 
-        .btn-hide {
-            background: linear-gradient(135deg, #6c757d, #5c636a);
+        .btn-delete {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
         }
 
-        .btn-hide:hover {
+        .btn-delete:hover {
             transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(108, 117, 125, .35);
+            box-shadow: 0 6px 14px rgba(220, 53, 69, .35);
         }
 
         .footer-actions {
@@ -148,7 +148,7 @@
         }
 
         .btn-view,
-        .btn-hide,
+        .btn-delete,
         .btn-edit,
         .btn-validate {
             color: #ffffff;
@@ -524,7 +524,7 @@
                             <a class="btn-edit" href="request/upload_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-upload"></i> Uploader BL signé</a>
                             <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
                         <?php endif; ?>
-                        <a class="btn-hide" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye-slash"></i> Masquer</a>
+                        <a class="btn-delete" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>" onclick="return confirm('Mettre ce devis à la corbeille ?')"><i class="fas fa-trash"></i> Mettre à la corbeille</a>
                     </div>
                     <div class="footer-validation">
                         <?php if (!$de['validation_commerciale']) : ?>
