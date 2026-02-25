@@ -841,7 +841,7 @@ $pdf->SetFont('Arial', '', 8); // Police normale pour les valeurs
 
 $pdf->SetFont('BookAntiqua', '', 8);
 
-$pdf->Cell(0, 5, utf8_decode('Habituelle entre nous'), 0, 1, 'L');
+$pdf->Cell(0, 5, utf8_decode($devis['termes_conditions']), 0, 1, 'L');
 
 
 

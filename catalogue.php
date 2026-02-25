@@ -13,6 +13,91 @@ function h(string $s): string
 // Connexion PDO
 $db = new Database();
 $pdo = $db->getConnection();
+$pdo->exec("CREATE TABLE IF NOT EXISTS produit (
+    id_produit INT AUTO_INCREMENT PRIMARY KEY,
+    designation VARCHAR(255) NOT NULL,
+    slug VARCHAR(255) NOT NULL,
+    prix_min DECIMAL(10,2) NULL,
+    prix_max DECIMAL(10,2) NULL,
+    prix_moyen DECIMAL(10,2) NULL,
+    dernier_prix DECIMAL(10,2) NULL,
+    stock INT NOT NULL DEFAULT 0,
+    date_creation DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_designation (designation),
+    UNIQUE KEY uniq_slug (slug)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_unicode_ci");
+
+// Synchronisation manuelle depuis ce catalogue (bouton)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'sync_produits') {
+    // Insérer toutes les désignations affichées ici avec agrégats de prix
+    $pdo->exec("INSERT INTO produit(designation, slug, prix_min, prix_max, prix_moyen, dernier_prix)
+        SELECT t.designation, MD5(t.designation) AS slug, t.prix_min, t.prix_max, t.prix_moyen, t.dernier_prix
+        FROM (
+            SELECT TRIM(ld.designation) AS designation,
+                         MIN(ld.prix) AS prix_min,
+                         MAX(ld.prix) AS prix_max,
+                         ROUND(AVG(ld.prix),2) AS prix_moyen,
+                         (
+                             SELECT ld2.prix FROM ligne_devis ld2
+                             WHERE TRIM(ld2.designation) = TRIM(ld.designation)
+                             ORDER BY ld2.id DESC LIMIT 1
+                         ) AS dernier_prix
+            FROM ligne_devis ld
+            WHERE TRIM(ld.designation) <> ''
+            GROUP BY TRIM(ld.designation)
+        ) AS t
+        ON DUPLICATE KEY UPDATE 
+            prix_min = VALUES(prix_min),
+            prix_max = VALUES(prix_max),
+            prix_moyen = VALUES(prix_moyen),
+            dernier_prix = VALUES(dernier_prix)");
+
+    // Générer slugs uniques pour ceux qui sont vides
+    $rows = $pdo->query('SELECT id_produit, designation, slug FROM produit')->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($rows as $r) {
+        $id = (int)$r['id_produit'];
+        $designation = (string)$r['designation'];
+        $slug = (string)($r['slug'] ?? '');
+        if ($slug === '' || preg_match('/^[a-f0-9]{32}$/', $slug)) { // si slug vide ou hash provisoire
+            $base = strtolower(trim(preg_replace('~[^\pL\d]+~u', '-', $designation)));
+            $base = preg_replace('~[^-a-z0-9]+~', '', $base);
+            $base = trim($base, '-') ?: 'produit';
+            $final = $base;
+            $i = 1;
+            while (true) {
+                $stmt = $pdo->prepare('SELECT id_produit FROM produit WHERE slug = :slug AND id_produit <> :id LIMIT 1');
+                $stmt->execute([':slug' => $final, ':id' => $id]);
+                $exists = $stmt->fetch(PDO::FETCH_ASSOC);
+                if (!$exists) break;
+                $final = $base . '-' . $i;
+                $i++;
+            }
+            $stmt = $pdo->prepare('UPDATE produit SET slug = :slug WHERE id_produit = :id');
+            $stmt->execute([':slug' => $final, ':id' => $id]);
+        }
+    }
+    header('Location: catalogue.php?synced=1');
+    exit;
+}
+
+// Liste des produits synchronisés (désignations existantes)
+$products = [];
+try {
+    $products = $pdo->query('SELECT id_produit, designation FROM produit ORDER BY designation ASC')->fetchAll(PDO::FETCH_ASSOC);
+} catch (Throwable $e) {
+    $products = [];
+}
+// Si la liste semble incomplète, synchroniser depuis ligne_devis
+if (!$products || count($products) < 10) {
+    try {
+        $pdo->exec("INSERT IGNORE INTO produit(designation, slug)
+        SELECT DISTINCT TRIM(ld.designation) AS designation, '' AS slug
+        FROM ligne_devis ld
+        WHERE TRIM(ld.designation) <> ''");
+        $products = $pdo->query('SELECT id_produit, designation FROM produit ORDER BY designation ASC')->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Throwable $e) {
+    }
+}
 
 // Recherche & filtres
 $q = isset($_GET['q']) ? trim((string)$_GET['q']) : '';
@@ -158,6 +243,10 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div class="card search-card p-3 mb-4">
+            <form method="post" class="mb-3 d-flex justify-content-end">
+                <input type="hidden" name="action" value="sync_produits">
+                <button class="btn btn-outline-primary"><i class="fa-solid fa-rotate me-2"></i>Mise à jour de la base produits (depuis ce catalogue)</button>
+            </form>
             <form class="row g-3" method="get">
                 <div class="col-md-6">
                     <label class="form-label">Recherche produit</label>
@@ -176,6 +265,56 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <a href="catalogue.php" class="btn btn-outline-secondary">Réinitialiser</a>
                 </div>
             </form>
+            <hr class="my-3" />
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6">
+                    <label class="form-label">Ajout rapide d'images (select-search)</label>
+                    <input id="mediaSearch" list="productList" class="form-control" placeholder="Tapez pour rechercher une désignation">
+                    <datalist id="productList">
+                        <?php foreach ($products as $p): ?>
+                            <option data-id="<?= (int)$p['id_produit'] ?>" value="<?= h($p['designation']) ?>"></option>
+                        <?php endforeach; ?>
+                    </datalist>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">ou sélection</label>
+                    <select id="mediaSelect" class="form-select">
+                        <option value="">— Choisir —</option>
+                        <?php foreach ($products as $p): ?>
+                            <option value="<?= (int)$p['id_produit'] ?>"><?= h($p['designation']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <button class="btn btn-success w-100" onclick="goUpload()"><i class="fa-solid fa-images me-2"></i>Gérer les images</button>
+                </div>
+            </div>
+            <script>
+                const mapProducts = {
+                    <?php
+                    $entries = [];
+                    foreach ($products as $p) {
+                        $key = addslashes($p['designation']);
+                        $val = (int)$p['id_produit'];
+                        $entries[] = '"' . $key . '"' . ': ' . $val;
+                    }
+                    echo implode(",\n                    ", $entries);
+                    ?>
+                };
+
+                function goUpload() {
+                    var pid = document.getElementById('mediaSelect').value;
+                    if (!pid) {
+                        const name = document.getElementById('mediaSearch').value;
+                        pid = mapProducts[name] || '';
+                    }
+                    if (!pid) {
+                        alert('Veuillez choisir ou rechercher un produit');
+                        return;
+                    }
+                    window.location.href = 'catalogue_media.php#pid-' + pid;
+                }
+            </script>
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-2">
