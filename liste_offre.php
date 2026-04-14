@@ -46,7 +46,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img style="width:auto; height:50px;" src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+                <img style="width:auto; height:50px;" src="img/logo_fidest.png" alt="Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -71,7 +71,8 @@
         <div class="card-grid">
             <!-- PHP code to fetch and display offers from the database -->
             <?php
-            include('../logi/connex.php');
+            require_once __DIR__ . '/model/Database.php';
+            $con = \Database::getConnection();
 
             $query = $con->prepare('SELECT * FROM offre');
             $query->execute();

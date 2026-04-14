@@ -122,7 +122,7 @@
 <body>
     <div class="login-container">
         <!-- Logo -->
-        <img src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+        <img src="img/logo_fidest.png" alt="Logo">
 
         <!-- Title -->
         <h2>Connexion à votre Espace</h2>

@@ -2,13 +2,13 @@
 session_start();
 
 require_once('../fpdf186/fpdf.php');
-require_once('../../logi/connex.php');
 require_once('../model/Database.php');
 require_once('../model/User.php');
 require_once('../model/Devis.php');
 require_once('../phpqrcode/qrlib.php');
 
-$pdo = Database::getConnection();
+$pdo = \Database::getConnection();
+$con = $pdo;
 $userObj = new User($pdo);
 $devisObj = new Devis($pdo);
 

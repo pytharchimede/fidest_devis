@@ -1,6 +1,8 @@
 <?php
 session_start();
-include('../logi/connex.php');
+require_once __DIR__ . '/../model/Database.php';
+
+$con = \Database::getConnection();
 
 $devisId = isset($_GET['devisId']) ? (int)$_GET['devisId'] : 0;
 if ($devisId <= 0) {

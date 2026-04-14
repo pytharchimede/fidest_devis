@@ -6,8 +6,6 @@ session_start();
 
 include('../fpdf186/fpdf.php');
 
-include('../../logi/connex.php');
-
 require_once("../phpqrcode/qrlib.php");
 
 require_once("../model/User.php");
@@ -20,7 +18,7 @@ require_once("../model/Devis.php");
 
 
 
-$pdo = Database::getConnection();
+$pdo = \Database::getConnection();
 
 $userObj = new User($pdo);
 
@@ -725,13 +723,13 @@ foreach ($lignes as $i => $ligne) {
 
     $pdf->Cell(20, $rowHeight, $ligne['quantite'], 1, 0, 'C');
 
-    $pdf->Cell(30, $rowHeight, number_format($ligne['prix'], 0, ',', ' ') . ' XOF', 1, 0, 'R');
+    $pdf->Cell(30, $rowHeight, number_format($ligne['prix'], 0, ',', ' ') . ' ', 1, 0, 'R');
 
     $tvaMontant = ($tvaFacturable) ? $ligne['quantite'] * $ligne['prix'] * 0.18 : 0;
 
-    $pdf->Cell(20, $rowHeight, number_format($tvaMontant, 0, ',', ' ') . ' XOF', 1, 0, 'R');
+    $pdf->Cell(20, $rowHeight, number_format($tvaMontant, 0, ',', ' ') . ' ', 1, 0, 'R');
 
-    $pdf->Cell(30, $rowHeight, number_format($ligne['total'], 0, ',', ' ') . ' XOF', 1, 0, 'R');
+    $pdf->Cell(30, $rowHeight, number_format($ligne['total'], 0, ',', ' ') . ' ', 1, 0, 'R');
 
 
 

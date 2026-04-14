@@ -171,7 +171,7 @@ if ($devisId <= 0 && $pdo) {
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+                <img src="img/logo_fidest.png" alt="Logo">
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <?php include '../menu.php'; ?>

@@ -38,7 +38,7 @@
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+                <img src="img/logo_fidest.png" alt="Logo">
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <?php include 'menu.php'; ?>
@@ -48,7 +48,8 @@
     <div class="container py-4">
         <h1 class="mb-3">Corbeille — Devis supprimés</h1>
         <?php
-        include('../logi/connex.php');
+        require_once __DIR__ . '/model/Database.php';
+        $con = \Database::getConnection();
         $sql = 'SELECT * FROM devis WHERE masque=1 ORDER BY id DESC';
         $query = $con->prepare($sql);
         $query->execute();

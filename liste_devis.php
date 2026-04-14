@@ -267,7 +267,7 @@
 
             <a class="navbar-brand" href="#">
 
-                <img src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+                <img src="img/logo_fidest.png" alt="Logo">
 
             </a>
 
@@ -295,9 +295,8 @@
 
         <?php
 
-
-
-        include('../logi/connex.php');
+        require_once __DIR__ . '/model/Database.php';
+        $con = \Database::getConnection();
 
 
 
