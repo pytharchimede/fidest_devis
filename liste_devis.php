@@ -465,7 +465,7 @@
 
         <div class="text-end mt-3">
 
-            <a target="_blank" href="https://fidest.ci/devis/request/export_resultat.php?<?php echo http_build_query($_GET); ?>" class="btn btn-primary">
+            <a target="_blank" href="request/export_resultat.php?<?php echo http_build_query($_GET); ?>" class="btn btn-primary">
 
                 <i class="fas fa-file-pdf"></i> Exporter en PDF
 
@@ -513,17 +513,17 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a class="btn-view" target="_blank" href="https://fidest.ci/devis/request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
+                        <a class="btn-view" target="_blank" href="request/export_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-eye"></i> Visualiser</a>
                         <a class="btn-edit" target="_blank" href="request/preview_pdf.php?devisId=<?= $de['id'] ?>"><i class="fas fa-file-pdf"></i> Aperçu PDF</a>
-                        <a class="btn-edit" target="_blank" href="request/export_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-truck"></i> Générer BL</a>
+                        <a class="btn-edit" target="_blank" href="export_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-truck"></i> Générer BL</a>
                         <?php if (isset($bl_index[(int)$de['id']])): $bl = $bl_index[(int)$de['id']]; ?>
                             <a class="btn-view" target="_blank" href="<?= htmlspecialchars($bl['file']) ?>"><i class="fas fa-stamp"></i> Voir BL signé</a>
                             <a class="btn-edit disabled" href="#" tabindex="-1" aria-disabled="true"><i class="fas fa-pen"></i> Modifier (verrouillé)</a>
                         <?php else: ?>
                             <a class="btn-edit" href="request/upload_bl.php?devisId=<?= $de['id'] ?>"><i class="fas fa-upload"></i> Uploader BL signé</a>
-                            <a class="btn-edit" href="https://fidest.ci/devis/modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
+                            <a class="btn-edit" href="modifier_devis.php?devisId=<?= $de['id'] ?>"><i class="fas fa-pen"></i> Modifier</a>
                         <?php endif; ?>
-                        <a class="btn-delete" href="https://fidest.ci/devis/request/masquer_devis.php?devisId=<?= $de['id'] ?>" onclick="return confirm('Mettre ce devis à la corbeille ?')"><i class="fas fa-trash"></i> Mettre à la corbeille</a>
+                        <a class="btn-delete" href="request/masquer_devis.php?devisId=<?= $de['id'] ?>" onclick="return confirm('Mettre ce devis à la corbeille ?')"><i class="fas fa-trash"></i> Mettre à la corbeille</a>
                     </div>
                     <div class="footer-validation">
                         <?php if (!$de['validation_commerciale']) : ?>

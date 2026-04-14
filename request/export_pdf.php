@@ -4,21 +4,53 @@
 
 session_start();
 
-include('../fpdf186/fpdf.php');
+function pdf_text($s)
+{
+    if ($s === null) {
+        return '';
+    }
+    $s = (string)$s;
+    // FPDF attend typiquement du Windows-1252/ISO-8859-1 (pas UTF-8)
+    if (!function_exists('iconv')) {
+        return $s;
+    }
+    $converted = @iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $s);
+    return ($converted === false) ? $s : $converted;
+}
 
-require_once("../phpqrcode/qrlib.php");
+function public_url(string $file, array $params = []): string
+{
+    $isHttps = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+    $scheme = $isHttps ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
 
-require_once("../model/User.php");
+    $scriptName = $_SERVER['SCRIPT_NAME'] ?? '';
+    $dir = rtrim(str_replace('\\', '/', dirname($scriptName)), '/');
+    if (preg_match('#/request$#', $dir)) {
+        $dir = rtrim(str_replace('\\', '/', dirname($dir)), '/');
+    }
+    $basePath = ($dir === '' || $dir === '.') ? '' : $dir;
 
-require_once("../model/Database.php");
+    $qs = $params ? ('?' . http_build_query($params)) : '';
+    return $scheme . '://' . $host . $basePath . '/' . ltrim($file, '/') . $qs;
+}
 
-require_once("../model/Devis.php");
+if (!defined('FPDF_FONTPATH')) {
+    define('FPDF_FONTPATH', __DIR__ . '/../fpdf186/font/');
+}
+
+require_once __DIR__ . '/../fpdf186/fpdf.php';
+require_once __DIR__ . '/../phpqrcode/qrlib.php';
+require_once __DIR__ . '/../model/User.php';
+require_once __DIR__ . '/../model/Database.php';
+require_once __DIR__ . '/../model/Devis.php';
 
 
 
 
 
 $pdo = \Database::getConnection();
+$con = $pdo;
 
 $userObj = new User($pdo);
 
@@ -33,10 +65,11 @@ $directeurGeneral = $userObj->findDirecteurGeneral();
 
 
 // Vérifiez que le devisId est défini dans la session ou dans l'URL
-
 if (!isset($_SESSION['devisId']) && !isset($_GET['devisId'])) {
-
-    die('ID de devis non défini.');
+    // En mode public (QR scan), on s'attend à recevoir devisId en GET
+    http_response_code(400);
+    echo 'ID de devis non défini.';
+    exit;
 }
 
 
@@ -68,6 +101,25 @@ $stmt = $con->prepare("SELECT * FROM devis WHERE id = ?");
 $stmt->execute([$devisId]);
 
 $devis = $stmt->fetch(PDO::FETCH_ASSOC);
+
+if (!$devis) {
+    http_response_code(404);
+    echo 'Devis non trouvé.';
+    exit;
+}
+
+// Mode public: autoriser uniquement les devis publiés
+$isAuthenticated = isset($_SESSION['user_id']);
+if (!$isAuthenticated) {
+    $isPublished = isset($devis['publier_devis']) && (int)$devis['publier_devis'] === 1;
+    $isMasked = isset($devis['masque']) && (int)$devis['masque'] === 1;
+
+    if (!$isPublished || $isMasked) {
+        http_response_code(403);
+        echo 'Devis non publié.';
+        exit;
+    }
+}
 
 
 
@@ -162,9 +214,18 @@ class PDF extends FPDF
 
         $this->Ln(10);
 
-
-
-        $this->Image('../../img/logo_veritas.jpg', 150, 10, 30);
+        // Logo Veritas (chemins alternatifs) – utiliser un chemin absolu pour éviter les soucis de répertoire courant
+        $candidates = [
+            __DIR__ . '/../logo/logo_veritas.jpg',
+            __DIR__ . '/../img/logo_veritas.jpg',
+            __DIR__ . '/../../img/logo_veritas.jpg',
+        ];
+        foreach ($candidates as $absPath) {
+            if (file_exists($absPath)) {
+                $this->Image($absPath, 150, 10, 30);
+                break;
+            }
+        }
     }
 
 
@@ -213,9 +274,9 @@ class PDF extends FPDF
 
 
 
-        $this->Cell(0, 3.5, utf8_decode("FOURNITURES INDUSTRIELLES, DEPANNAGE ET TRAVAUX PUBLIQUES - Au capital de 10 000 000 F CFA - Siège Social : Abidjan, Koumassi, Zone industrielle"), 0, 1, 'C');
+        $this->Cell(0, 3.5, pdf_text("FOURNITURES INDUSTRIELLES, DEPANNAGE ET TRAVAUX PUBLIQUES - Au capital de 10 000 000 F CFA - Siège Social : Abidjan, Koumassi, Zone industrielle"), 0, 1, 'C');
 
-        $this->Cell(0, 3.5, utf8_decode("01 BP 1642 Abidjan 01 - Téléphone : (+225) +225 27-21-36-27-27  -  Email : info@fidest.org - RCCM : CI-ABJ-2017-B-20163  -  N° CC : 010274200088"), 0, 1, 'C');
+        $this->Cell(0, 3.5, pdf_text("01 BP 1642 Abidjan 01 - Téléphone : (+225) +225 27-21-36-27-27  -  Email : info@fidest.org - RCCM : CI-ABJ-2017-B-20163  -  N° CC : 010274200088"), 0, 1, 'C');
 
 
 
@@ -330,13 +391,23 @@ $pdf->SetFont('BookAntiqua', '', 12); // Utiliser la police Book Antiqua normale
 
 
 
-// Générer le QR code
+// Générer le QR code (URL publique stable sur le domaine courant)
+$qrCodeData = public_url('export_pdf.php', ['devisId' => $devis['id']]);
 
-$qrCodeData = 'https://fidest.ci/devis/request/export_pdf.php?devisId=' . $devis['id']; // Remplacez ceci par les données pour le QR code
+// Éviter les soucis de droits en hébergement: fallback vers un fichier temporaire si qrCodeFile/ n'est pas inscriptible
+$qrDir = __DIR__ . '/../qrCodeFile';
+$qrCleanup = false;
+$qrCodeFile = $qrDir . '/qrcode_devis_' . $devis['id'] . '.png';
+if (!is_dir($qrDir) || !is_writable($qrDir)) {
+    $tmp = tempnam(sys_get_temp_dir(), 'qr_devis_');
+    if ($tmp !== false) {
+        $qrCodeFile = $tmp . '.png';
+        @rename($tmp, $qrCodeFile);
+        $qrCleanup = true;
+    }
+}
 
-$qrCodeFile = '../qrCodeFile/qrcode.png'; // Nom du fichier QR code
-
-QRcode::png($qrCodeData, $qrCodeFile, 'L', 4, 2); // Générer le QR code
+QRcode::png($qrCodeData, $qrCodeFile, 'L', 4, 2);
 
 
 
@@ -380,7 +451,7 @@ $pdf->SetFont('BookAntiqua', 'B', 10);
 
 $pdf->SetXY(10, 50); // Position de la première ligne
 
-$pdf->Cell(0, 5, utf8_decode(strtoupper($client['nom_client'])), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text(strtoupper($client['nom_client'])), 0, 1, 'L');
 
 
 
@@ -388,25 +459,25 @@ $pdf->SetFont('Arial', '', 8);
 
 $pdf->SetXY(10, 55); // Position de la deuxième ligne
 
-$pdf->Cell(0, 5, utf8_decode($client['localisation_client']), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text($client['localisation_client']), 0, 1, 'L');
 
 
 
 $pdf->SetXY(10, 60); // Position de la troisième ligne
 
-$pdf->Cell(0, 5, utf8_decode($client['commune_client']), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text($client['commune_client']), 0, 1, 'L');
 
 
 
 $pdf->SetXY(10, 65); // Position de la quatrième ligne
 
-$pdf->Cell(0, 5, utf8_decode($client['bp_client']), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text($client['bp_client']), 0, 1, 'L');
 
 
 
 $pdf->SetXY(10, 70); // Position de la cinquième ligne
 
-$pdf->Cell(0, 5, utf8_decode($client['pays_client']), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text($client['pays_client']), 0, 1, 'L');
 
 
 
@@ -436,7 +507,7 @@ $h = 5;
 
 $pdf->SetXY($x, $y);
 
-$pdf->MultiCell($w, $h, utf8_decode('N° d\'offre: ' . $offre['num_offre']), 0, 'L');
+$pdf->MultiCell($w, $h, pdf_text('N° d\'offre: ' . $offre['num_offre']), 0, 'L');
 
 $y += $pdf->GetY() - $y; // Avance de la hauteur utilisée
 
@@ -450,7 +521,7 @@ $pdf->AddFont('BookAntiqua', '', 8);
 
 $pdf->SetXY($x, $y);
 
-$pdf->MultiCell($w, $h, utf8_decode('Date: ' . dateEnToutesLettres($offre['date_offre'])), 0, 'L');
+$pdf->MultiCell($w, $h, pdf_text('Date: ' . dateEnToutesLettres($offre['date_offre'])), 0, 'L');
 
 $y += $pdf->GetY() - $y;
 
@@ -460,7 +531,7 @@ $y += $pdf->GetY() - $y;
 
 $pdf->SetXY($x, $y);
 
-$pdf->MultiCell($w, $h, utf8_decode('Référence: ' . $offre['reference_offre']), 0, 'L');
+$pdf->MultiCell($w, $h, pdf_text('Référence: ' . $offre['reference_offre']), 0, 'L');
 
 $y += $pdf->GetY() - $y;
 
@@ -472,7 +543,7 @@ $y += $pdf->GetY() - $y;
 
 $pdf->SetXY(150, $y);
 
-$pdf->Cell(0, 5, utf8_decode('Votre numéro client: 1064'), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text('Votre numéro client: 1064'), 0, 1, 'L');
 
 */
 
@@ -482,7 +553,7 @@ $pdf->Cell(0, 5, utf8_decode('Votre numéro client: 1064'), 0, 1, 'L');
 
 $pdf->SetXY($x, $y);
 
-$pdf->MultiCell($w, $h, utf8_decode('Votre interlocuteur: ' . strtoupper($offre['commercial_dedie'])), 0, 'L');
+$pdf->MultiCell($w, $h, pdf_text('Votre interlocuteur: ' . strtoupper($offre['commercial_dedie'])), 0, 'L');
 
 $y += $pdf->GetY() - $y;
 
@@ -498,7 +569,7 @@ $pdf->SetFont('Arial', 'B', 12);
 
 $pdf->SetFont('BookAntiqua', 'B', 12);
 
-$pdf->Cell(50, 10, utf8_decode('Devis N° ' . $devis['numero_devis']), 0, 0, 'L');
+$pdf->Cell(50, 10, pdf_text('Devis N° ' . $devis['numero_devis']), 0, 0, 'L');
 
 
 
@@ -506,7 +577,7 @@ $pdf->SetFont('Arial', '', 10);
 
 $pdf->SetFont('BookAntiqua', '', 10);
 
-$pdf->Cell(0, 10, utf8_decode('   à l\'attention de ' . $devis['correspondant']), 0, 1, 'L');
+$pdf->Cell(0, 10, pdf_text('   à l\'attention de ' . $devis['correspondant']), 0, 1, 'L');
 
 
 
@@ -514,11 +585,11 @@ $pdf->SetFont('Arial', '', 8);
 
 $pdf->SetFont('BookAntiqua', '', 8);
 
-$pdf->Cell(0, 5, utf8_decode('Pour faire suite a votre demande, '), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text('Pour faire suite a votre demande, '), 0, 1, 'L');
 
-$pdf->Cell(0, 5, utf8_decode('nous vous prions de bien vouloir trouver ci-dessous notre meilleur proposition.'), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text('nous vous prions de bien vouloir trouver ci-dessous notre meilleur proposition.'), 0, 1, 'L');
 
-$pdf->Cell(0, 5, utf8_decode('Nous restons à votre  entière disposition pour toute information complémentaire.'), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text('Nous restons à votre  entière disposition pour toute information complémentaire.'), 0, 1, 'L');
 
 $pdf->SetFont('Arial', '', 8);
 
@@ -550,17 +621,17 @@ $pdf->SetDrawColor(169, 169, 169); // Couleur des lignes de bordure gris clair (
 
 // Ajouter les cellules de l'en-tête avec le remplissage, la couleur du texte, et la couleur des bordures
 
-$pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
+$pdf->Cell(10, 10, pdf_text('Pos.'), 1, 0, 'C', true);
 
-$pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
+$pdf->Cell(85, 10, pdf_text('Description'), 1, 0, 'C', true);
 
-$pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
+$pdf->Cell(20, 10, pdf_text('Quantité'), 1, 0, 'C', true);
 
-$pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
+$pdf->Cell(30, 10, pdf_text('Prix unitaire'), 1, 0, 'C', true);
 
-$pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
+$pdf->Cell(20, 10, pdf_text('TVA'), 1, 0, 'C', true);
 
-$pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
+$pdf->Cell(30, 10, pdf_text('Prix total'), 1, 0, 'C', true);
 
 $pdf->Ln();
 
@@ -618,7 +689,7 @@ foreach ($lignes as $i => $ligne) {
 
         $pdf->SetTextColor(150, 150, 150); // gris
 
-        $pdf->Cell(0, 8, utf8_decode('Le tableau se poursuit à la page suivante...'), 0, 1, 'C');
+        $pdf->Cell(0, 8, pdf_text('Le tableau se poursuit à la page suivante...'), 0, 1, 'C');
 
         $pdf->SetTextColor(0, 0, 0); // noir
 
@@ -642,17 +713,17 @@ foreach ($lignes as $i => $ligne) {
 
         $pdf->SetDrawColor(169, 169, 169);
 
-        $pdf->Cell(10, 10, utf8_decode('Pos.'), 1, 0, 'C', true);
+        $pdf->Cell(10, 10, pdf_text('Pos.'), 1, 0, 'C', true);
 
-        $pdf->Cell(85, 10, utf8_decode('Description'), 1, 0, 'C', true);
+        $pdf->Cell(85, 10, pdf_text('Description'), 1, 0, 'C', true);
 
-        $pdf->Cell(20, 10, utf8_decode('Quantité'), 1, 0, 'C', true);
+        $pdf->Cell(20, 10, pdf_text('Quantité'), 1, 0, 'C', true);
 
-        $pdf->Cell(30, 10, utf8_decode('Prix unitaire'), 1, 0, 'C', true);
+        $pdf->Cell(30, 10, pdf_text('Prix unitaire'), 1, 0, 'C', true);
 
-        $pdf->Cell(20, 10, utf8_decode('TVA'), 1, 0, 'C', true);
+        $pdf->Cell(20, 10, pdf_text('TVA'), 1, 0, 'C', true);
 
-        $pdf->Cell(30, 10, utf8_decode('Prix total'), 1, 0, 'C', true);
+        $pdf->Cell(30, 10, pdf_text('Prix total'), 1, 0, 'C', true);
 
         $pdf->Ln();
 
@@ -697,7 +768,7 @@ foreach ($lignes as $i => $ligne) {
 
     $pdf->SetXY($xStart + 10, $yStart);
 
-    $pdf->MultiCell(85, 5, utf8_decode($ligne['designation']), 'LR', 'L');
+    $pdf->MultiCell(85, 5, pdf_text($ligne['designation']), 'LR', 'L');
 
 
 
@@ -745,7 +816,7 @@ if ($pdf->GetY() + $blocTotalHauteur > $pageHauteurMax) {
     // Afficher le message de poursuite
     $pdf->SetFont('Arial', 'I', 8);
     $pdf->SetTextColor(150, 150, 150); // gris
-    $pdf->Cell(0, 8, utf8_decode('Le tableau se poursuit à la page suivante...'), 0, 1, 'C');
+    $pdf->Cell(0, 8, pdf_text('Le tableau se poursuit à la page suivante...'), 0, 1, 'C');
     $pdf->SetTextColor(0, 0, 0); // noir
 
     // Nouvelle page (les totaux ne nécessitent pas la réinsertion de l’en-tête du tableau)
@@ -774,7 +845,7 @@ $pdf->AddFont('BookAntiqua', 'B', 8); // Pour le style normal
 
 $pdf->Cell(115, 10, '', 0); // Espace avant le total
 
-$pdf->Cell(45, 10, utf8_decode('Montant HT'), 1);
+$pdf->Cell(45, 10, pdf_text('Montant HT'), 1);
 
 $pdf->Cell(30, 10, number_format($devis['total_ht'], 0, ',', ' ') . ' XOF', 1);
 
@@ -784,7 +855,7 @@ if ($devis['tva_facturable'] == 1) {
 
     $pdf->Cell(115, 10, '', 0); // Espace avant le total
 
-    $pdf->Cell(45, 10, utf8_decode('TVA 18%'), 1);
+    $pdf->Cell(45, 10, pdf_text('TVA 18%'), 1);
 
     $pdf->Cell(30, 10, number_format($devis['tva'], 0, ',', ' ') . ' XOF', 1);
 
@@ -793,7 +864,7 @@ if ($devis['tva_facturable'] == 1) {
 
 $pdf->Cell(115, 10, '', 0);
 
-$pdf->Cell(45, 10, utf8_decode('Montant TTC'), 1);
+$pdf->Cell(45, 10, pdf_text('Montant TTC'), 1);
 
 $pdf->Cell(30, 10, number_format($devis['total_ttc'], 0, ',', ' ') . ' XOF', 1);
 
@@ -809,11 +880,11 @@ $pdf->SetFont('Arial', 'BU', 8); // Police en gras pour les titres
 
 $pdf->SetFont('BookAntiqua', 'BU', 8);
 
-$pdf->Cell(25, 5, utf8_decode('Validité de l\'offre:'), 0, 0, 'L');
+$pdf->Cell(25, 5, pdf_text('Validité de l\'offre:'), 0, 0, 'L');
 
 $pdf->SetFont('Arial', '', 8); // Police normale pour les valeurs
 
-$pdf->Cell(0, 5, utf8_decode('30 jours'), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text('30 jours'), 0, 1, 'L');
 
 
 
@@ -821,11 +892,11 @@ $pdf->SetFont('Arial', 'BU', 8); // Police en gras pour les titres
 
 $pdf->SetFont('BookAntiqua', 'BU', 8);
 
-$pdf->Cell(26, 5, utf8_decode('Délai de livraison:'), 0, 0, 'L');
+$pdf->Cell(26, 5, pdf_text('Délai de livraison:'), 0, 0, 'L');
 
 $pdf->SetFont('Arial', '', 8); // Police normale pour les valeurs
 
-$pdf->Cell(0, 5, utf8_decode($devis['delai_livraison']), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text($devis['delai_livraison']), 0, 1, 'L');
 
 
 
@@ -833,13 +904,13 @@ $pdf->SetFont('Arial', 'BU', 8); // Police en gras pour les titres
 
 $pdf->SetFont('BookAntiqua', 'BU', 8);
 
-$pdf->Cell(35, 5, utf8_decode('Conditions de règlement:'), 0, 0, 'L');
+$pdf->Cell(35, 5, pdf_text('Conditions de règlement:'), 0, 0, 'L');
 
 $pdf->SetFont('Arial', '', 8); // Police normale pour les valeurs
 
 $pdf->SetFont('BookAntiqua', '', 8);
 
-$pdf->Cell(0, 5, utf8_decode($devis['termes_conditions']), 0, 1, 'L');
+$pdf->Cell(0, 5, pdf_text($devis['termes_conditions']), 0, 1, 'L');
 
 
 
@@ -857,13 +928,13 @@ $pdf->SetFont('BookAntiqua', 'BU', 10);
 
 $pdf->Cell(5); // Réduire l'espace initial à gauche
 
-$pdf->Cell(80, 10, utf8_decode('Directeur Commercial (Nom et Signature)'), 0, 0, 'L');
+$pdf->Cell(80, 10, pdf_text('Directeur Commercial (Nom et Signature)'), 0, 0, 'L');
 
 
 
 // Intitulé à l'extrême droite pour Directeur Général
 
-$pdf->Cell(100, 10, utf8_decode('Directeur Général (Nom et Signature)'), 0, 1, 'R');
+$pdf->Cell(100, 10, pdf_text('Directeur Général (Nom et Signature)'), 0, 1, 'R');
 
 
 
@@ -987,10 +1058,10 @@ $pdf->Cell(5); // Réduire l'espace initial à gauche
 
 if ($devisObj->isValidCommercial($devisId)) {  // Vérifie si la validation commerciale a eu lieu
 
-    $pdf->Cell(80, 10, utf8_decode($directeurCommercial['prenom'] . ' ' . $directeurCommercial['nom']), 0, 0, 'L');
+    $pdf->Cell(80, 10, pdf_text($directeurCommercial['prenom'] . ' ' . $directeurCommercial['nom']), 0, 0, 'L');
 } else {
 
-    $pdf->Cell(80, 10, utf8_decode('En Attente de validation...'), 0, 0, 'L');
+    $pdf->Cell(80, 10, pdf_text('En Attente de validation...'), 0, 0, 'L');
 }
 
 
@@ -1001,10 +1072,10 @@ if ($devisObj->isValidCommercial($devisId)) {  // Vérifie si la validation comm
 
 if ($devisObj->isValidGenerale($devisId)) {  // Vérifie si la validation générale a eu lieu
 
-    $pdf->Cell(100, 10, utf8_decode($directeurGeneral['prenom'] . ' ' . $directeurGeneral['nom']), 0, 1, 'R');
+    $pdf->Cell(100, 10, pdf_text($directeurGeneral['prenom'] . ' ' . $directeurGeneral['nom']), 0, 1, 'R');
 } else {
 
-    $pdf->Cell(80, 10, utf8_decode('En Attente de validation...'), 0, 0, 'L');
+    $pdf->Cell(80, 10, pdf_text('En Attente de validation...'), 0, 0, 'L');
 }
 
 
@@ -1064,6 +1135,10 @@ if (isset($_GET['download']) && $_GET['download'] == '1') {
     $pdf->Output('D', 'devis_' . $devis['id'] . '.pdf');
 } else {
     $pdf->Output('I', 'devis_' . $devis['id'] . '.pdf');
+}
+
+if (!empty($qrCleanup) && $qrCleanup && is_string($qrCodeFile) && file_exists($qrCodeFile)) {
+    @unlink($qrCodeFile);
 }
 
 

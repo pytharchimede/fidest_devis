@@ -1,16 +1,28 @@
 <?php
 
+require_once __DIR__ . '/../auth_check.php';
 
+function pdf_text($s)
+{
+    if ($s === null) {
+        return '';
+    }
+    $s = (string)$s;
+    if (!function_exists('iconv')) {
+        return $s;
+    }
+    $converted = @iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $s);
+    return ($converted === false) ? $s : $converted;
+}
 
-session_start();
+if (!defined('FPDF_FONTPATH')) {
+    define('FPDF_FONTPATH', __DIR__ . '/../fpdf186/font/');
+}
 
-include('../fpdf186/fpdf.php');
-
+require_once __DIR__ . '/../fpdf186/fpdf.php';
 require_once __DIR__ . '/../model/Database.php';
 
 $con = \Database::getConnection();
-
-require_once("../phpqrcode/qrlib.php");
 
 
 
@@ -72,7 +84,7 @@ $pdf->SetFont('Arial', 'B', 10);
 
 $pdf->SetFillColor(200, 200, 200);
 
-$pdf->Cell(30, 10, utf8_decode('N° Devis'), 1, 0, 'C', true);
+$pdf->Cell(30, 10, pdf_text('N° Devis'), 1, 0, 'C', true);
 
 $pdf->Cell(60, 10, 'Client', 1, 0, 'C', true);
 
@@ -116,15 +128,15 @@ foreach ($devisList as $devis) {
 
     $pdf->Cell(30, 10, $devis['numero_devis'], 1);
 
-    $pdf->Cell(60, 10, utf8_decode($client['nom_client']), 1);
+    $pdf->Cell(60, 10, pdf_text($client['nom_client']), 1);
 
-    $pdf->Cell(70, 10, utf8_decode($offre['description_offre']), 1);
+    $pdf->Cell(70, 10, pdf_text($offre['description_offre']), 1);
 
     $pdf->Cell(40, 10, date('d/m/Y', strtotime($devis['date_creation'])), 1);
 
     $pdf->Cell(40, 10, number_format($devis['montant_total'], 2, ',', ' ') . ' F CFA', 1);
 
-    $pdf->Cell(30, 10, utf8_decode($devis['statut']), 1, 1);
+    $pdf->Cell(30, 10, pdf_text($devis['statut']), 1, 1);
 }
 
 

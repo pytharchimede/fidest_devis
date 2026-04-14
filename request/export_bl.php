@@ -1,11 +1,15 @@
 <?php
 session_start();
 
-require_once('../fpdf186/fpdf.php');
-require_once('../model/Database.php');
-require_once('../model/User.php');
-require_once('../model/Devis.php');
-require_once('../phpqrcode/qrlib.php');
+if (!defined('FPDF_FONTPATH')) {
+    define('FPDF_FONTPATH', __DIR__ . '/../fpdf186/font/');
+}
+
+require_once __DIR__ . '/../fpdf186/fpdf.php';
+require_once __DIR__ . '/../model/Database.php';
+require_once __DIR__ . '/../model/User.php';
+require_once __DIR__ . '/../model/Devis.php';
+require_once __DIR__ . '/../phpqrcode/qrlib.php';
 
 $pdo = \Database::getConnection();
 $con = $pdo;
@@ -14,7 +18,9 @@ $devisObj = new Devis($pdo);
 
 // Vérifier le devisId via GET (devisId ou id) ou session
 if (!isset($_SESSION['devisId']) && !isset($_GET['devisId']) && !isset($_GET['id'])) {
-    die('ID de devis non défini.');
+    http_response_code(400);
+    echo 'ID de devis non défini.';
+    exit;
 }
 $devisId = null;
 if (isset($_GET['devisId'])) {
@@ -30,7 +36,23 @@ $_SESSION['devisId'] = $devisId;
 $stmt = $con->prepare('SELECT * FROM devis WHERE id = ?');
 $stmt->execute([$devisId]);
 $devis = $stmt->fetch(PDO::FETCH_ASSOC);
-if (!$devis) die('Devis non trouvé.');
+if (!$devis) {
+    http_response_code(404);
+    echo 'Devis non trouvé.';
+    exit;
+}
+
+// Mode public: autoriser uniquement les devis publiés
+$isAuthenticated = isset($_SESSION['user_id']);
+if (!$isAuthenticated) {
+    $isPublished = isset($devis['publier_devis']) && (int)$devis['publier_devis'] === 1;
+    $isMasked = isset($devis['masque']) && (int)$devis['masque'] === 1;
+    if (!$isPublished || $isMasked) {
+        http_response_code(403);
+        echo 'BL non publié.';
+        exit;
+    }
+}
 
 $stmt = $con->prepare('SELECT * FROM ligne_devis WHERE devis_id = ?');
 $stmt->execute([$devisId]);
@@ -99,6 +121,9 @@ function pdf_text($s)
     if ($s === null) return '';
     $s = (string)$s;
     // Convertir UTF-8 vers Windows-1252 (proche ISO-8859-1) avec translittération
+    if (!function_exists('iconv')) {
+        return $s;
+    }
     $converted = @iconv('UTF-8', 'windows-1252//TRANSLIT//IGNORE', $s);
     return ($converted === false) ? $s : $converted;
 }
@@ -141,8 +166,18 @@ foreach ($veritasCandidates as $p) {
 }
 
 // Générer le QR code pour BL
-$qrData = 'https://fidest.ci/devis/request/export_bl.php?devisId=' . $devis['id'];
-$qrFile = __DIR__ . '/../qrCodeFile/qrcode_bl_' . $devis['id'] . '.png';
+$qrData = 'https://fidest.ci/devis/export_bl.php?devisId=' . $devis['id'];
+$qrDir = __DIR__ . '/../qrCodeFile';
+$qrCleanup = false;
+$qrFile = $qrDir . '/qrcode_bl_' . $devis['id'] . '.png';
+if (!is_dir($qrDir) || !is_writable($qrDir)) {
+    $tmp = tempnam(sys_get_temp_dir(), 'qr_bl_');
+    if ($tmp !== false) {
+        $qrFile = $tmp . '.png';
+        @rename($tmp, $qrFile);
+        $qrCleanup = true;
+    }
+}
 QRcode::png($qrData, $qrFile, 'L', 4, 2);
 $pdf->qrPath = $qrFile;
 
@@ -299,6 +334,10 @@ if (isset($_GET['download']) && $_GET['download'] == '1') {
     $pdf->Output('D', 'bl_' . $devis['id'] . '.pdf');
 } else {
     $pdf->Output('I', 'bl_' . $devis['id'] . '.pdf');
+}
+
+if (!empty($qrCleanup) && $qrCleanup && is_string($qrFile) && file_exists($qrFile)) {
+    @unlink($qrFile);
 }
 
 unset($_SESSION['devisId']);

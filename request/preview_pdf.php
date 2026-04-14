@@ -1,8 +1,8 @@
 <?php
 // Aperçu visuel du PDF avec sélection des pages à supprimer avant génération finale
-session_start();
-require_once('../model/Database.php');
-require_once('../model/Devis.php');
+require_once __DIR__ . '/../auth_check.php';
+require_once __DIR__ . '/../model/Database.php';
+require_once __DIR__ . '/../model/Devis.php';
 
 // Récup paramètre obligatoire
 $devisId = isset($_GET['devisId']) ? (int)$_GET['devisId'] : (isset($_SESSION['devisId']) ? (int)$_SESSION['devisId'] : 0);

@@ -40,7 +40,7 @@ if (isset($_GET['devisId'])) {
 
 // Déboguer pour vérifier la valeur de $devisId
 
-var_dump($devisId);
+// var_dump($devisId); // DEBUG uniquement
 
 
 
