@@ -88,6 +88,7 @@ function guessCategory(array $cats, string $designation): string
                 <div class="eyebrow">ÉQUIPEMENTS PROFESSIONNELS</div>
                 <h1>La sélection FIDEST, pensée pour vos exigences.</h1>
                 <p>Découvrez nos équipements et fournitures pour professionnels, sélectionnés pour leur fiabilité et leur performance.</p>
+                <a class="btn btn-warning mt-4" href="boutique_publique.php" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square me-2"></i>Ouvrir la boutique publique</a>
             </div>
         </section>
 
