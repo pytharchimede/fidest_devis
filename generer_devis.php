@@ -1,26 +1,18 @@
 <?php
-    session_start();
-    include('../logi/connex.php');
+include 'auth_check.php';
+require_once __DIR__ . '/bootstrap.php';
 
-    $devis = $con->prepare('SELECT * FROM devis');
-    $devis->execute();
-    
-    $nb_devis = $devis->rowcount();
-    $index_actuel = $nb_devis+1;
-    
-    $code_devis = 'FI-DEV-PAB-'.$index_actuel;
-    
-    // Récupérer les clients
-    $clients = $con->prepare('SELECT * FROM client');
-    $clients->execute();
-    
-    // Récupérer les offres
-    $offres = $con->prepare('SELECT * FROM offre');
-    $offres->execute();
+$database = app_database();
+$clients = (new App\Domain\Client\ClientRepository($database))->all();
+$offres = (new App\Domain\Offer\OfferRepository($database))->all();
+$code_devis = (new App\Domain\Quote\QuoteRepository($database))->nextNumber();
+$issuer = app_branding()->issuerBlock();
+$defaultFooter = app_branding()->footerBlock();
 ?>
 
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,80 +20,76 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/quote-pro.css">
+    <link rel="stylesheet" href="css/smart-select.css">
 </head>
-<body>
+
+<body class="quote-editor">
 
     <!-- Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img style="width:auto; height:50px;" src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+                <img style="width:auto; height:50px;" src="img/logo_fidest.png" alt="Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="generer_devis.php">Générer un devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_devis.php">Liste des devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_facture.php">Liste des factures</a>
-                    </li>
-                       <li class="nav-item">
-                        <a class="nav-link" href="liste_client.php">Liste des clients</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_offre.php">Liste des offres</a>
-                    </li>
-                </ul>
+                <?php include 'menu.php'; ?>
             </div>
         </div>
     </nav>
 
 
     <div class="container mt-4">
-        <h1 class="text-center">Rédiger un Devis</h1>
-        
+        <div class="page-heading">
+            <h1 class="text-center">Créer un devis</h1>
+            <p>Renseignez les informations essentielles, ajoutez vos prestations puis finalisez le document.</p>
+        </div>
+
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="clientSelect" class="form-label">Sélectionner le client</label>
-                <select class="form-control" id="clientSelect" name="client_id">
+                <select class="form-control" id="clientSelect" name="client_id" data-smart-select data-placeholder="Rechercher un client…">
                     <option value="" disabled selected>Choisissez un client</option>
-                    <?php while ($client = $clients->fetch(PDO::FETCH_ASSOC)): ?>
-                        <option value="<?php echo $client['id_client']; ?>">
+                    <?php foreach ($clients as $client): ?>
+                        <?php $recipient = implode("\n", array_filter([
+                            $client['nom_client'] ?? '',
+                            $client['localisation_client'] ?? '',
+                            $client['commune_client'] ?? '',
+                            $client['bp_client'] ?? '',
+                            $client['pays_client'] ?? '',
+                        ])); ?>
+                        <option value="<?= (int) $client['id_client'] ?>" data-recipient="<?= htmlspecialchars($recipient, ENT_QUOTES, 'UTF-8') ?>">
                             <?php echo $client['nom_client']; ?>
                         </option>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </select>
+                <a id="editSelectedClient" class="btn btn-sm btn-link px-0 disabled" href="#" aria-disabled="true"><i class="fas fa-pen"></i> Modifier le client sélectionné</a>
             </div>
             <div class="col-md-6">
                 <label for="offreSelect" class="form-label">Sélectionner l'offre</label>
-                <select class="form-control" id="offreSelect" name="offre_id">
+                <select class="form-control" id="offreSelect" name="offre_id" data-smart-select data-placeholder="Rechercher un produit ou une offre…">
                     <option value="" disabled selected>Choisissez une offre</option>
-                    <?php while ($offre = $offres->fetch(PDO::FETCH_ASSOC)): ?>
+                    <?php foreach ($offres as $offre): ?>
                         <option value="<?php echo $offre['id_offre']; ?>">
                             <?php echo $offre['num_offre'] . ' - ' . $offre['reference_offre']; ?>
                         </option>
-                    <?php endwhile; ?>
+                    <?php endforeach; ?>
                 </select>
+                <a id="editSelectedOffer" class="btn btn-sm btn-link px-0 disabled" href="#" aria-disabled="true"><i class="fas fa-pen"></i> Modifier l’offre sélectionnée</a>
             </div>
             <div class="col-md-8">
-                <label for="delaiLivraison" class="form-label">Délai de livraison</label>
-                <input type="text" class="form-control" id="delaiLivraison" name="delaiLivraison" placeholder="Délai de livraison">
+                <label for="delaiLivraison" class="form-label">Date prévue de livraison</label>
+                <input type="date" class="form-control" id="delaiLivraison" name="delaiLivraison" min="<?= gmdate('Y-m-d') ?>">
             </div>
             <div class="col-md-4">
                 <label for="correspondant" class="form-label">Correspondant</label>
                 <input type="text" class="form-control" id="correspondant" name="correspondant" placeholder="Correspondant">
             </div>
         </div>
-        
+
         <div class="checkbox_zone">
             <div class="form-group">
                 <label for="tvaFacturable">TVA Facturable</label>
@@ -110,7 +98,7 @@
                     <span class="slider round"></span>
                 </label>
             </div>
-            
+
             <div class="form-group">
                 <label for="publierDevis">Publier le devis</label>
                 <label class="switch">
@@ -143,6 +131,11 @@
                     <label for="dateExpiration" class="form-label">Date d'expiration</label>
                     <input type="date" class="form-control" id="dateExpiration" name="dateExpiration">
                 </div>
+                <div class="form-group">
+                    <label for="dateFacturation" class="form-label">Date prévue de facturation</label>
+                    <input type="date" class="form-control" id="dateFacturation" name="dateFacturation" min="<?= gmdate('Y-m-d') ?>">
+                    <div class="form-text">Une alerte sera envoyée avant cette date.</div>
+                </div>
             </div>
         </div>
 
@@ -150,11 +143,13 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="emisPar" class="form-label">Émetteur</label>
-                    <textarea class="form-control" id="emisPar" name="emisPar" placeholder="Informations sur l'émetteur" rows="3"></textarea>
+                    <textarea class="form-control" id="emisPar" name="emisPar" placeholder="Informations sur l'émetteur" rows="3" readonly><?= htmlspecialchars($issuer, ENT_QUOTES, 'UTF-8') ?></textarea>
+                    <div class="form-text">Renseigné automatiquement depuis votre compte connecté.</div>
                 </div>
                 <div class="col-md-6">
                     <label for="destineA" class="form-label">Destinataire</label>
-                    <textarea class="form-control" id="destineA" name="destineA" placeholder="Informations sur le destinataire" rows="3"></textarea>
+                    <textarea class="form-control" id="destineA" name="destineA" placeholder="Sélectionnez un client" rows="3" readonly></textarea>
+                    <div class="form-text">Mis à jour automatiquement à partir du client sélectionné.</div>
                 </div>
             </div>
 
@@ -191,49 +186,49 @@
             <button type="button" class="btn btn-success mt-3" id="addRow">+ Ajouter une ligne</button>
         </form>
 
-    <!-- Additional Info Section -->
-    <div class="row footer-info mt-4">
-        <div class="col-md-8">
-            <div class="form-group">
-                <label for="termesConditions" class="form-label">Termes et conditions</label>
-                <textarea class="form-control" id="termesConditions" name="termesConditions" rows="5" placeholder="Termes et conditions"></textarea>
+        <!-- Additional Info Section -->
+        <div class="row footer-info mt-4">
+            <div class="col-md-8">
+                <div class="form-group">
+                    <label for="termesConditions" class="form-label">Termes et conditions</label>
+                    <textarea class="form-control" id="termesConditions" name="termesConditions" rows="5" placeholder="Termes et conditions"></textarea>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="piedDePage" class="form-label">Pied de page</label>
+                    <textarea class="form-control" id="piedDePage" name="piedDePage" rows="5" placeholder="Pied de page"><?= htmlspecialchars($defaultFooter, ENT_QUOTES, 'UTF-8') ?></textarea>
+                </div>
             </div>
-            <div class="form-group mt-3">
-                <label for="piedDePage" class="form-label">Pied de page</label>
-                <textarea class="form-control" id="piedDePage" name="piedDePage" rows="5" placeholder="Pied de page"></textarea>
+            <div class="col-md-4">
+                <div class="form-group mt-3">
+                    <label for="totalHT" class="form-label">Total HT</label>
+                    <input type="text" class="form-control" id="totalHT" name="totalHT" readonly>
+                </div>
+                <div class="form-group mt-3 tvaZone">
+                    <label for="tva" class="form-label">TVA 18%</label>
+                    <input type="text" class="form-control" id="tva" name="tva" readonly>
+                </div>
+                <div class="form-group mt-3">
+                    <label for="totalTTC" class="form-label">Total TTC</label>
+                    <input type="text" class="form-control" id="totalTTC" name="totalTTC" readonly>
+                </div>
+                <!-- Buttons -->
+                <div class="btn-group d-flex flex-column mt-3">
+                    <button type="button" class="btn btn-primary mt-2" id="saveBtn" style="margin-bottom:2px;">
+                        <i class="fas fa-save"></i> Enregistrer le Devis
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="exportPdfBtn">
+                        <i class="fas fa-file-pdf"></i> Exporter PDF
+                    </button>
+                </div>
             </div>
         </div>
-       <div class="col-md-4">
-            <div class="form-group mt-3">
-                <label for="totalHT" class="form-label">Total HT</label>
-                <input type="text" class="form-control" id="totalHT" name="totalHT" readonly>
-            </div>
-            <div class="form-group mt-3 tvaZone">
-                <label for="tva" class="form-label">TVA 18%</label>
-                <input type="text" class="form-control" id="tva" name="tva" readonly>
-            </div>
-            <div class="form-group mt-3">
-                <label for="totalTTC" class="form-label">Total TTC</label>
-                <input type="text" class="form-control" id="totalTTC" name="totalTTC" readonly>
-            </div>
-            <!-- Buttons -->
-            <div class="btn-group d-flex flex-column mt-3">
-                <button type="button" class="btn btn-primary mt-2" id="saveBtn" style="margin-bottom:2px;">
-                    <i class="fas fa-save"></i> Enregistrer le Devis
-                </button>
-                <button type="button" class="btn btn-secondary" id="exportPdfBtn">
-                    <i class="fas fa-file-pdf"></i> Exporter PDF
-                </button>
-            </div>
-        </div>
+
+
     </div>
 
 
-    </div>
-
-
-     <!-- Footer -->
-     <footer class="footer">
+    <!-- Footer -->
+    <footer class="footer">
         <div class="container">
             <div class="text-center">
                 <p>&copy; <?php echo gmdate('Y'); ?> FIDEST. Tous droits réservés.</p>
@@ -251,6 +246,9 @@
     <script src="js/script.js"></script>
     <!--Intégration de jquery/Ajax-->
     <script src="../logi/js/jquery_1.7.1_jquery.min.js"></script>
-	<script src="js/function.js"></script> 
+    <script src="js/function.js"></script>
+    <script src="js/quote-pro.js"></script>
+<script src="js/smart-select.js"></script>
 </body>
+
 </html>

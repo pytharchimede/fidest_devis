@@ -1,0 +1,36 @@
+@import url('../branding.css.php');
+
+.message {
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.spinner {
+    font-size: 1.5rem;
+    color: var(--brand-primary);
+    margin-top: 1rem;
+}
+
+body, html {
+    font-family: var(--brand-font-body) !important;
+    background: linear-gradient(145deg, var(--brand-primary), var(--brand-primary-soft)) !important;
+}
+
+.login-container { border-radius: var(--brand-radius-md) !important; }
+.login-container h2, .login-container .forgot-password { color: var(--brand-primary) !important; }
+.login-container input:focus { border-color: var(--brand-accent) !important; }
+.login-container button { background: var(--brand-primary) !important; border-radius: var(--brand-radius-sm) !important; }
+.login-container button:hover { background: var(--brand-primary-soft) !important; }

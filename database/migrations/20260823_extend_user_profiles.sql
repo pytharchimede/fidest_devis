@@ -1,0 +1,6 @@
+ALTER TABLE user_devis
+    ADD COLUMN telephone VARCHAR(40) NULL,
+    ADD COLUMN fonction VARCHAR(120) NULL,
+    ADD COLUMN departement VARCHAR(120) NULL,
+    ADD COLUMN bio TEXT NULL,
+    ADD COLUMN adresse VARCHAR(255) NULL;
