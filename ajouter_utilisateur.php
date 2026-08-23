@@ -1,249 +1,202 @@
 <?php
-// Inclure les fichiers nécessaires
-require_once 'model/Database.php';
-require_once 'model/User.php';
-
+require_once __DIR__ . '/auth_check.php';
+require_once __DIR__ . '/bootstrap.php';
+require_once __DIR__ . '/model/Database.php';
 $pdo = Database::getConnection();
-$userModel = new User($pdo);
-
+$errors = [];
+$form = ['mail_pro' => '', 'nom' => '', 'prenom' => ''];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $mail_pro = $_POST['mail_pro'];
-    $password = $_POST['password']; // Le mot de passe doit être haché
-    $hashedPassword = hash("sha512", $password);
-
-    $nom = $_POST['nom'];
-    $prenom = $_POST['prenom'];
-    $modifier_devis = isset($_POST['modifier_devis']) ? 1 : 0;
-    $visualiser_devis = isset($_POST['visualiser_devis']) ? 1 : 0;
-    $soumettre_devis = isset($_POST['soumettre_devis']) ? 1 : 0;
-    $masquer_devis = isset($_POST['masquer_devis']) ? 1 : 0;
-    $envoyer_devis = isset($_POST['envoyer_devis']) ? 1 : 0;
-    $valider_devis = isset($_POST['valider_devis']) ? 1 : 0;
-
-    // Préparer la requête d'insertion
-    $stmt = $pdo->prepare("INSERT INTO user_devis (mail_pro, password, nom, prenom, modifier_devis, visualiser_devis, soumettre_devis, masquer_devis, envoyer_devis, valider_devis, active) VALUES (:mail_pro, :password, :nom, :prenom, :modifier_devis, :visualiser_devis, :soumettre_devis, :masquer_devis, :envoyer_devis, :valider_devis, 1)");
-    $stmt->execute([
-        'mail_pro' => $mail_pro,
-        'password' => $hashedPassword,
-        'nom' => $nom,
-        'prenom' => $prenom,
-        'modifier_devis' => $modifier_devis,
-        'visualiser_devis' => $visualiser_devis,
-        'soumettre_devis' => $soumettre_devis,
-        'masquer_devis' => $masquer_devis,
-        'envoyer_devis' => $envoyer_devis,
-        'valider_devis' => $valider_devis,
-    ]);
-
-    // Redirection après l'ajout
-    header('Location: liste_utilisateur.php');
-    exit;
+    $mail_pro = trim((string) ($_POST['mail_pro'] ?? ''));
+    $password = (string) ($_POST['password'] ?? '');
+    $nom = trim((string) ($_POST['nom'] ?? ''));
+    $prenom = trim((string) ($_POST['prenom'] ?? ''));
+    $form = compact('mail_pro', 'nom', 'prenom');
+    if (!filter_var($mail_pro, FILTER_VALIDATE_EMAIL)) $errors[] = 'Saisissez une adresse email professionnelle valide.';
+    if (strlen($password) < 8) $errors[] = 'Le mot de passe doit contenir au moins 8 caractères.';
+    if ($nom === '' || $prenom === '') $errors[] = 'Le nom et le prénom sont obligatoires.';
+    $existing = $pdo->prepare('SELECT id FROM user_devis WHERE mail_pro = :mail_pro LIMIT 1');
+    $existing->execute(['mail_pro' => $mail_pro]);
+    if ($existing->fetch()) $errors[] = 'Cette adresse email est déjà utilisée.';
+    if ($errors === []) {
+        $permissions = ['modifier_devis', 'visualiser_devis', 'soumettre_devis', 'masquer_devis', 'envoyer_devis', 'valider_devis'];
+        $values = array_fill_keys($permissions, 0);
+        foreach ($permissions as $permission) $values[$permission] = isset($_POST[$permission]) ? 1 : 0;
+        $stmt = $pdo->prepare('INSERT INTO user_devis (mail_pro, password, nom, prenom, modifier_devis, visualiser_devis, soumettre_devis, masquer_devis, envoyer_devis, valider_devis, gestion_utilisateur, active, photo, signature, role_id) VALUES (:mail_pro, :password, :nom, :prenom, :modifier_devis, :visualiser_devis, :soumettre_devis, :masquer_devis, :envoyer_devis, :valider_devis, 0, 1, "", "", 0)');
+        $stmt->execute(array_merge(['mail_pro' => $mail_pro, 'password' => hash('sha512', $password), 'nom' => $nom, 'prenom' => $prenom], $values));
+        header('Location: liste_utilisateur.php');
+        exit;
+    }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ajouter un Utilisateur</title>
+    <title>Ajouter un membre | FIDEST</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/modules.css">
     <style>
-        body {
-            background-color: #f4f6f9;
-            font-family: 'Poppins', sans-serif;
+        .user-form {
+            max-width: 1040px;
+            margin: 0 auto
         }
 
-        .navbar {
-            background-color: #1d2b57;
+        .user-form .card-body {
+            padding: clamp(22px, 4vw, 42px)
         }
 
-        .navbar-brand img {
-            height: 50px;
+        .form-section {
+            padding: 24px;
+            border: 1px solid var(--brand-border);
+            border-radius: var(--brand-radius-md);
+            background: #fbfbfd
         }
 
-        .nav-link {
-            color: #fff !important;
+        .form-section+.form-section {
+            margin-top: 22px
         }
 
-        .nav-link.active {
-            color: #ffc107 !important;
-        }
-
-        .container {
-            margin-top: 40px;
-        }
-
-        h1 {
-            color: #1d2b57;
-            font-weight: 600;
-            margin-bottom: 30px;
-        }
-
-        .btn-primary {
-            background-color: #fabd02;
-            border-color: #fabd02;
-        }
-
-        .btn-primary:hover {
-            background-color: #e0a800;
-            border-color: #e0a800;
-        }
-
-        .form-control {
-            border-radius: 15px;
-            padding: 10px;
-        }
-
-        .form-label {
-            font-weight: 600;
-            color: #1d2b57;
-        }
-
-        .footer {
-            background-color: #1d2b57;
-            color: #fff;
-            padding: 15px 0;
-            text-align: center;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
-        }
-
-        .navbar-toggler-icon {
-            background-color: #fff;
-        }
-
-        .card-body {
-            padding: 30px;
-        }
-
-        .card-header {
-            background-color: #1d2b57;
-            color: white;
-            font-size: 18px;
-            font-weight: bold;
-        }
-
-        .form-switch {
+        .section-heading {
             display: flex;
             align-items: center;
-            margin-right: 20px;
-            /* Ajout d'une marge entre les interrupteurs */
+            gap: 12px;
+            margin-bottom: 20px;
+            color: var(--brand-primary);
+            font: 800 1.05rem var(--brand-font-heading)
         }
 
-        .form-switch input {
-            width: 40px;
-            /* Augmenter la taille du bouton interrupteur */
-            height: 22px;
-            cursor: pointer;
+        .section-heading i {
+            color: var(--brand-accent)
         }
 
-        .form-switch label {
-            margin-left: 10px;
-            font-weight: 500;
+        .input-with-icon {
+            position: relative
         }
 
-        .form-switch-container {
+        .input-with-icon>i {
+            position: absolute;
+            top: 16px;
+            left: 15px;
+            color: var(--brand-text-muted)
+        }
+
+        .input-with-icon .form-control {
+            padding-left: 43px
+        }
+
+        .permission-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px
+        }
+
+        .permission-item {
             display: flex;
-            flex-wrap: wrap;
-            /* Permet aux interrupteurs de passer à la ligne suivante si besoin */
-            gap: 15px;
-            /* Espacement entre les éléments */
+            align-items: center;
+            gap: 12px;
+            min-height: 64px;
+            padding: 12px 14px;
+            border: 1px solid var(--brand-border);
+            border-radius: var(--brand-radius-sm);
+            background: #fff;
+            cursor: pointer
+        }
+
+        .permission-item:has(input:checked) {
+            border-color: var(--brand-accent);
+            background: #fffaf0
+        }
+
+        .permission-item input {
+            width: 1.2em;
+            height: 1.2em;
+            flex: 0 0 auto;
+            accent-color: var(--brand-primary)
+        }
+
+        .permission-item span {
+            color: var(--brand-text);
+            font-size: .88rem;
+            font-weight: 700
+        }
+
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px
+        }
+
+        @media(max-width:640px) {
+            .permission-grid {
+                grid-template-columns: 1fr
+            }
+
+            .form-section {
+                padding: 18px
+            }
+
+            .form-actions {
+                flex-direction: column-reverse
+            }
+
+            .form-actions .btn {
+                width: 100%
+            }
         }
     </style>
 </head>
 
-<body>
-    <!-- Menu de navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Gestion des Utilisateurs</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <?php include 'menu.php'; ?>
-            </div>
+<body class="module-page team-page">
+    <?php include __DIR__ . '/partials/navbar.php'; ?>
+    <main class="container">
+        <div class="module-heading">
+            <div class="module-heading__copy"><span class="module-heading__icon"><i class="fas fa-user-plus"></i></span>
+                <div>
+                    <h1>Ajouter un membre</h1>
+                    <p>Créez un accès et définissez ses responsabilités dans FIDEST.</p>
+                </div>
+            </div><a href="liste_utilisateur.php" class="btn btn-outline-primary"><i class="fas fa-arrow-left me-2"></i>Retour à l’équipe</a>
         </div>
-    </nav>
-
-    <!-- Contenu principal -->
-    <div class="container">
-        <h1>Ajouter un Utilisateur</h1>
-        <div class="card">
-            <div class="card-header">
-                <i class="fas fa-user-plus"></i> Formulaire d'ajout
-            </div>
-            <div class="card-body">
+        <div class="card user-form">
+            <div class="card-body"><?php if ($errors): ?><div class="alert alert-danger" role="alert"><strong>Vérifiez les informations saisies.</strong>
+                        <ul class="mb-0 mt-2"><?php foreach ($errors as $error): ?><li><?= htmlspecialchars($error) ?></li><?php endforeach; ?></ul>
+                    </div><?php endif; ?>
                 <form action="ajouter_utilisateur.php" method="POST">
-                    <div class="mb-3">
-                        <label for="mail_pro" class="form-label">Email professionnel</label>
-                        <input type="email" class="form-control" id="mail_pro" name="mail_pro" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Mot de passe</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="nom" class="form-label">Nom</label>
-                        <input type="text" class="form-control" id="nom" name="nom" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="prenom" class="form-label">Prénom</label>
-                        <input type="text" class="form-control" id="prenom" name="prenom" required>
-                    </div>
-
-                    <!-- Interrupteurs pour les droits -->
-                    <div class="mb-3">
-                        <label class="form-label">Droits d'accès</label>
-                        <div class="form-switch-container">
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="modifier_devis" name="modifier_devis">
-                                <label class="form-check-label" for="modifier_devis">Modifier les devis</label>
+                    <div class="form-section">
+                        <div class="section-heading"><i class="fas fa-id-card"></i>Identité et accès</div>
+                        <div class="row g-3">
+                            <div class="col-md-6"><label for="prenom" class="form-label">Prénom</label>
+                                <div class="input-with-icon"><i class="fas fa-user"></i><input type="text" class="form-control" id="prenom" name="prenom" value="<?= htmlspecialchars($form['prenom']) ?>" autocomplete="given-name" required></div>
                             </div>
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="visualiser_devis" name="visualiser_devis">
-                                <label class="form-check-label" for="visualiser_devis">Visualiser les devis</label>
+                            <div class="col-md-6"><label for="nom" class="form-label">Nom</label>
+                                <div class="input-with-icon"><i class="fas fa-user"></i><input type="text" class="form-control" id="nom" name="nom" value="<?= htmlspecialchars($form['nom']) ?>" autocomplete="family-name" required></div>
                             </div>
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="soumettre_devis" name="soumettre_devis">
-                                <label class="form-check-label" for="soumettre_devis">Soumettre les devis</label>
+                            <div class="col-md-6"><label for="mail_pro" class="form-label">Email professionnel</label>
+                                <div class="input-with-icon"><i class="fas fa-envelope"></i><input type="email" class="form-control" id="mail_pro" name="mail_pro" value="<?= htmlspecialchars($form['mail_pro']) ?>" autocomplete="email" required></div>
                             </div>
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="masquer_devis" name="masquer_devis">
-                                <label class="form-check-label" for="masquer_devis">Masquer les devis</label>
-                            </div>
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="envoyer_devis" name="envoyer_devis">
-                                <label class="form-check-label" for="envoyer_devis">Envoyer les devis</label>
-                            </div>
-                            <div class="form-switch">
-                                <input class="form-check-input" type="checkbox" id="valider_devis" name="valider_devis">
-                                <label class="form-check-label" for="valider_devis">Valider les devis</label>
+                            <div class="col-md-6"><label for="password" class="form-label">Mot de passe <small class="text-muted">(8 caractères minimum)</small></label>
+                                <div class="input-with-icon"><i class="fas fa-lock"></i><input type="password" class="form-control" id="password" name="password" minlength="8" autocomplete="new-password" required></div>
                             </div>
                         </div>
                     </div>
-
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-plus-circle"></i> Ajouter l'utilisateur
-                    </button>
+                    <div class="form-section">
+                        <div class="section-heading"><i class="fas fa-shield-halved"></i>Droits d’accès</div>
+                        <div class="permission-grid"><?php $permissionLabels = ['modifier_devis' => 'Modifier les devis', 'visualiser_devis' => 'Visualiser les devis', 'soumettre_devis' => 'Soumettre les devis', 'masquer_devis' => 'Masquer les devis', 'envoyer_devis' => 'Envoyer les devis', 'valider_devis' => 'Valider les devis'];
+                                                        foreach ($permissionLabels as $key => $label): ?><label class="permission-item" for="<?= $key ?>"><input class="form-check-input" type="checkbox" id="<?= $key ?>" name="<?= $key ?>"><span><?= $label ?></span></label><?php endforeach; ?></div>
+                    </div>
+                    <div class="form-actions"><a href="liste_utilisateur.php" class="btn btn-light">Annuler</a><button type="submit" class="btn btn-primary"><i class="fas fa-user-plus me-2"></i>Créer le membre</button></div>
                 </form>
             </div>
         </div>
-    </div>
-
-    <div class="row" style="height:100px;"></div>
-
-    <!-- Pied de page -->
+    </main>
     <div class="footer">
-        <p>&copy; 2024 Gestion des Utilisateurs. Tous droits réservés.</p>
+        <p>&copy; <?= date('Y') ?> FIDEST. Tous droits réservés.</p>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

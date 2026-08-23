@@ -47,19 +47,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Mise à jour des données de l'utilisateur
     if (!isset($error)) {
-    $stmt = $pdo->prepare("UPDATE user_devis SET nom=:nom, prenom=:prenom, mail_pro=:mail, telephone=:telephone, fonction=:fonction, departement=:departement, adresse=:adresse, bio=:bio, password=:password, photo=:photo WHERE id=:id");
-    $stmt->execute([
-        'nom' => $nom,
-        'prenom' => $prenom,
-        'mail' => $mail, 'telephone' => $telephone, 'fonction' => $fonction, 'departement' => $departement, 'adresse' => $adresse, 'bio' => $bio,
-        'password' => $hashedPassword,
-        'photo' => $targetFile,
-        'id' => $userId
-    ]);
+        $stmt = $pdo->prepare("UPDATE user_devis SET nom=:nom, prenom=:prenom, mail_pro=:mail, telephone=:telephone, fonction=:fonction, departement=:departement, adresse=:adresse, bio=:bio, password=:password, photo=:photo WHERE id=:id");
+        $stmt->execute([
+            'nom' => $nom,
+            'prenom' => $prenom,
+            'mail' => $mail,
+            'telephone' => $telephone,
+            'fonction' => $fonction,
+            'departement' => $departement,
+            'adresse' => $adresse,
+            'bio' => $bio,
+            'password' => $hashedPassword,
+            'photo' => $targetFile,
+            'id' => $userId
+        ]);
 
-    // Redirection après modification
-    header('Location: profil.php');
-    exit;
+        // Redirection après modification
+        header('Location: profil.php');
+        exit;
     }
 }
 ?>
@@ -170,11 +175,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <div class="module-heading">
             <div class="module-heading__copy">
                 <span class="module-heading__icon"><i class="fas fa-user"></i></span>
-                <div><h1>Mon profil</h1><p>Mettez à jour vos informations personnelles et votre sécurité.</p></div>
+                <div>
+                    <h1>Mon profil</h1>
+                    <p>Mettez à jour vos informations personnelles et votre sécurité.</p>
+                </div>
             </div>
+            <a href="request/export_profile_pdf.php?id=<?= (int) $userId ?>" class="btn btn-outline-primary" target="_blank"><i class="fas fa-file-pdf me-2"></i>Exporter mon profil</a>
         </div>
         <div class="card profile-card">
-            <div class="profile-cover"><div class="profile-cover__brand"><span>ESPACE COLLABORATEUR</span><strong>FIDEST</strong></div><i class="fas fa-shapes"></i></div>
+            <div class="profile-cover">
+                <div class="profile-cover__brand"><span>ESPACE COLLABORATEUR</span><strong>FIDEST</strong></div><i class="fas fa-shapes"></i>
+            </div>
             <div class="card-body">
                 <form action="profil.php" method="POST" enctype="multipart/form-data">
                     <?php if (isset($error)): ?><div class="alert alert-danger"><?= htmlspecialchars($error) ?></div><?php endif; ?>
@@ -184,16 +195,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <!-- Affiche la photo actuelle ou Gravatar si pas de photo -->
                                 <img id="previewImage" src="<?php echo $user['photo'] ?: 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user['mail_pro']))) . '?d=mm&s=200'; ?>" alt="Photo de profil">
                             </div>
-                            <div class="profile-identity"><h2><?= htmlspecialchars($user['prenom'].' '.$user['nom']) ?></h2><p><?= htmlspecialchars((string)($user['fonction'] ?: 'Collaborateur FIDEST')) ?></p><span class="profile-online"><i class="fas fa-circle"></i> Profil actif</span></div>
+                            <div class="profile-identity">
+                                <h2><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h2>
+                                <p><?= htmlspecialchars((string)($user['fonction'] ?: 'Collaborateur FIDEST')) ?></p><span class="profile-online"><i class="fas fa-circle"></i> Profil actif</span>
+                            </div>
                             <div class="mt-3">
-                                <label class="profile-photo-button"><i class="fas fa-camera"></i> Modifier la photo<input type="file" name="photo" accept="image/*" onchange="previewImage(event)" hidden></label>
+                                <label class="profile-photo-button"><i class="fas fa-camera"></i> Modifier la photo<input id="photoInput" type="file" name="photo" accept="image/jpeg,image/png,image/webp" onchange="previewImage(event)" hidden></label>
+                                <small id="photoPreviewStatus" class="d-block mt-2 text-muted">Choisissez une image pour voir l’aperçu.</small>
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <div class="profile-section-heading"><span><i class="fas fa-address-card"></i></span><div><h3>Informations professionnelles</h3><p>Ces informations structurent votre identité dans FIDEST.</p></div></div>
-                            <div class="profile-section-heading profile-security-heading"><span><i class="fas fa-shield-halved"></i></span><div><h3>Sécurité du compte</h3><p>Utilisez un mot de passe unique et difficile à deviner.</p></div></div><div class="mb-3">
+                            <div class="profile-section-heading"><span><i class="fas fa-address-card"></i></span>
+                                <div>
+                                    <h3>Informations professionnelles</h3>
+                                    <p>Ces informations structurent votre identité dans FIDEST.</p>
+                                </div>
+                            </div>
+                            <div class="mb-3">
                                 <label for="nom" class="form-label">Nom</label>
                                 <input type="text" class="form-control" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required>
+                            </div>
+                            <div class="profile-section-heading profile-security-heading"><span><i class="fas fa-shield-halved" aria-hidden="true"></i></span>
+                                <div>
+                                    <h3>Sécurité du compte</h3>
+                                    <p>Utilisez un mot de passe unique et difficile à deviner.</p>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="prenom" class="form-label">Prénom</label>
@@ -231,8 +257,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Aperçu de l'image sélectionnée
         function previewImage(event) {
             const preview = document.getElementById('previewImage');
-            preview.src = URL.createObjectURL(event.target.files[0]);
-            preview.onload = () => URL.revokeObjectURL(preview.src); // Libérer la mémoire
+            const status = document.getElementById('photoPreviewStatus');
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+            if (!file.type.startsWith('image/')) {
+                event.target.value = '';
+                status.textContent = 'Veuillez sélectionner une image valide.';
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = () => {
+                preview.src = reader.result;
+                status.textContent = file.name + ' sélectionnée';
+            };
+            reader.readAsDataURL(file);
         }
     </script>
 </body>
