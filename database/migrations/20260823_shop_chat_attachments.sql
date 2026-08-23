@@ -1,0 +1,3 @@
+ALTER TABLE messages_boutique ADD COLUMN IF NOT EXISTS fichier VARCHAR(255) DEFAULT NULL AFTER message;
+ALTER TABLE messages_boutique ADD COLUMN IF NOT EXISTS fichier_original VARCHAR(255) DEFAULT NULL AFTER fichier;
+ALTER TABLE messages_boutique ADD COLUMN IF NOT EXISTS mime_type VARCHAR(100) DEFAULT NULL AFTER fichier_original;
