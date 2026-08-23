@@ -28,3 +28,13 @@
 .admin-chat-down{position:absolute;z-index:5;right:22px;bottom:92px;display:grid;width:44px;height:44px;place-items:center;color:#fff;background:var(--brand-primary);border:2px solid #fff;border-radius:50%;box-shadow:0 8px 24px rgba(34,37,75,.28);opacity:0;pointer-events:none;transform:translateY(12px) scale(.85);transition:.2s}
 .admin-chat-down.show{opacity:1;pointer-events:auto;transform:none}
 .admin-chat-down b{position:absolute;top:-5px;right:-4px;display:grid;min-width:20px;height:20px;padding:0 5px;place-items:center;color:#22254b;background:var(--brand-accent);border:2px solid #fff;border-radius:12px;font-size:.58rem}
+.admin-chat-head{display:flex;gap:18px;align-items:center;justify-content:space-between}
+.admin-contact-panel{display:flex;gap:10px;align-items:center;margin-left:auto}
+.admin-contact-info{display:flex;gap:9px;flex-wrap:wrap;justify-content:flex-end;max-width:460px}
+.admin-contact-info span{display:flex;gap:5px;align-items:center;padding:5px 8px;color:#fff;background:#ffffff14;border-radius:7px;font-size:.6rem;white-space:nowrap}
+.admin-contact-info a{color:#fff;font-weight:800;text-decoration:none}
+.admin-contact-actions{display:flex;gap:6px}
+.admin-contact-actions button{padding:7px 9px;color:#22254b;background:#fabd02;border:0;border-radius:8px;font-size:.6rem;font-weight:800;white-space:nowrap}
+.admin-contact-actions button:disabled{color:#d8d9e0;background:#595c7d;cursor:not-allowed}
+.admin-contact-actions i{margin-right:4px}
+@media(max-width:900px){.admin-chat-head{align-items:flex-start;flex-direction:column;gap:9px}.admin-contact-panel{width:100%;align-items:flex-start;flex-direction:column;margin:0}.admin-contact-info{justify-content:flex-start}.admin-contact-actions{width:100%}.admin-contact-actions button{flex:1}.messaging-shell{height:calc(100dvh - 185px)}}
