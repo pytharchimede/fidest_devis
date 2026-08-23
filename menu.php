@@ -12,6 +12,7 @@ $menuItems = [
     ['generer_devis.php', 'Nouveau devis'],
     ['liste_devis.php', 'Devis'],
     ['liste_bl.php', 'Livraisons'],
+    ['bons_commande.php', 'Commandes'],
     ['liste_facture.php', 'Factures'],
     ['liste_client.php', 'Clients'],
     ['liste_offre.php', 'Offres'],
