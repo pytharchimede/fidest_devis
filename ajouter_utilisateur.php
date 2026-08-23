@@ -18,10 +18,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $existing->execute(['mail_pro' => $mail_pro]);
     if ($existing->fetch()) $errors[] = 'Cette adresse email est déjà utilisée.';
     if ($errors === []) {
-        $permissions = ['modifier_devis', 'visualiser_devis', 'soumettre_devis', 'masquer_devis', 'envoyer_devis', 'valider_devis'];
+        $permissions = ['modifier_devis', 'visualiser_devis', 'soumettre_devis', 'masquer_devis', 'envoyer_devis', 'valider_devis', 'gestion_utilisateur'];
         $values = array_fill_keys($permissions, 0);
         foreach ($permissions as $permission) $values[$permission] = isset($_POST[$permission]) ? 1 : 0;
-        $stmt = $pdo->prepare('INSERT INTO user_devis (mail_pro, password, nom, prenom, modifier_devis, visualiser_devis, soumettre_devis, masquer_devis, envoyer_devis, valider_devis, gestion_utilisateur, active, photo, signature, role_id) VALUES (:mail_pro, :password, :nom, :prenom, :modifier_devis, :visualiser_devis, :soumettre_devis, :masquer_devis, :envoyer_devis, :valider_devis, 0, 1, "", "", 0)');
+        $stmt = $pdo->prepare('INSERT INTO user_devis (mail_pro, password, nom, prenom, modifier_devis, visualiser_devis, soumettre_devis, masquer_devis, envoyer_devis, valider_devis, gestion_utilisateur, active, photo, signature, role_id) VALUES (:mail_pro, :password, :nom, :prenom, :modifier_devis, :visualiser_devis, :soumettre_devis, :masquer_devis, :envoyer_devis, :valider_devis, :gestion_utilisateur, 1, "", "", 0)');
         $stmt->execute(array_merge(['mail_pro' => $mail_pro, 'password' => hash('sha512', $password), 'nom' => $nom, 'prenom' => $prenom], $values));
         header('Location: liste_utilisateur.php');
         exit;
@@ -186,7 +186,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="form-section">
                         <div class="section-heading"><i class="fas fa-shield-halved"></i>Droits d’accès</div>
-                        <div class="permission-grid"><?php $permissionLabels = ['modifier_devis' => 'Modifier les devis', 'visualiser_devis' => 'Visualiser les devis', 'soumettre_devis' => 'Soumettre les devis', 'masquer_devis' => 'Masquer les devis', 'envoyer_devis' => 'Envoyer les devis', 'valider_devis' => 'Valider les devis'];
+                        <div class="permission-grid"><?php $permissionLabels = ['modifier_devis' => 'Modifier les devis', 'visualiser_devis' => 'Visualiser les devis', 'soumettre_devis' => 'Soumettre les devis', 'masquer_devis' => 'Masquer les devis', 'envoyer_devis' => 'Envoyer les devis', 'valider_devis' => 'Valider les devis', 'gestion_utilisateur' => 'Gérer les annonces et notifications'];
                                                         foreach ($permissionLabels as $key => $label): ?><label class="permission-item" for="<?= $key ?>"><input class="form-check-input" type="checkbox" id="<?= $key ?>" name="<?= $key ?>"><span><?= $label ?></span></label><?php endforeach; ?></div>
                     </div>
                     <div class="form-actions"><a href="liste_utilisateur.php" class="btn btn-light">Annuler</a><button type="submit" class="btn btn-primary"><i class="fas fa-user-plus me-2"></i>Créer le membre</button></div>

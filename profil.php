@@ -151,6 +151,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             align-items: center;
         }
 
+        .photo-profile {
+            position: relative;
+        }
+
+        .photo-profile::after {
+            content: "\f030";
+            position: absolute;
+            right: 5px;
+            bottom: 8px;
+            display: grid;
+            width: 38px;
+            height: 38px;
+            place-items: center;
+            color: var(--brand-primary);
+            background: var(--brand-accent);
+            border: 4px solid #fff;
+            border-radius: 50%;
+            font-family: "Font Awesome 6 Free";
+            font-size: .8rem;
+            font-weight: 900;
+        }
+
+        .profile-photo-button:focus-within {
+            outline: 3px solid rgba(250, 189, 2, .3);
+            outline-offset: 3px;
+        }
+
+        .photo-preview-status.is-ready {
+            color: #14733f !important;
+            font-weight: 700;
+        }
+
         .footer {
             background-color: #1d2b57;
             color: white;
@@ -193,15 +225,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <div class="col-md-4 text-center photo-preview">
                             <div class="photo-profile">
                                 <!-- Affiche la photo actuelle ou Gravatar si pas de photo -->
-                                <img id="previewImage" src="<?php echo $user['photo'] ?: 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user['mail_pro']))) . '?d=mm&s=200'; ?>" alt="Photo de profil">
+                                <img id="profilePhotoPreview" src="<?= htmlspecialchars($user['photo'] ?: 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($user['mail_pro']))) . '?d=mm&s=200', ENT_QUOTES, 'UTF-8') ?>" alt="Aperçu de la photo de profil">
                             </div>
                             <div class="profile-identity">
                                 <h2><?= htmlspecialchars($user['prenom'] . ' ' . $user['nom']) ?></h2>
                                 <p><?= htmlspecialchars((string)($user['fonction'] ?: 'Collaborateur FIDEST')) ?></p><span class="profile-online"><i class="fas fa-circle"></i> Profil actif</span>
                             </div>
                             <div class="mt-3">
-                                <label class="profile-photo-button"><i class="fas fa-camera"></i> Modifier la photo<input id="photoInput" type="file" name="photo" accept="image/jpeg,image/png,image/webp" onchange="previewImage(event)" hidden></label>
-                                <small id="photoPreviewStatus" class="d-block mt-2 text-muted">Choisissez une image pour voir l’aperçu.</small>
+                                <label class="profile-photo-button" for="photoInput"><i class="fas fa-camera"></i> Modifier la photo</label>
+                                <input id="photoInput" type="file" name="photo" accept="image/jpeg,image/png,image/webp" hidden>
+                                <small id="photoPreviewStatus" class="photo-preview-status d-block mt-2 text-muted" aria-live="polite">JPG, PNG ou WebP.</small>
                             </div>
                         </div>
                         <div class="col-md-8">
@@ -215,12 +248,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="nom" class="form-label">Nom</label>
                                 <input type="text" class="form-control" id="nom" name="nom" value="<?php echo htmlspecialchars($user['nom']); ?>" required>
                             </div>
-                            <div class="profile-section-heading profile-security-heading"><span><i class="fas fa-shield-halved" aria-hidden="true"></i></span>
-                                <div>
-                                    <h3>Sécurité du compte</h3>
-                                    <p>Utilisez un mot de passe unique et difficile à deviner.</p>
-                                </div>
-                            </div>
                             <div class="mb-3">
                                 <label for="prenom" class="form-label">Prénom</label>
                                 <input type="text" class="form-control" id="prenom" name="prenom" value="<?php echo htmlspecialchars($user['prenom']); ?>" required>
@@ -232,6 +259,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="col-md-6 mb-3"><label class="form-label">Département</label><input class="form-control" name="departement" value="<?= htmlspecialchars((string)($user['departement'] ?? '')) ?>"></div>
                                 <div class="col-12 mb-3"><label class="form-label">Adresse professionnelle</label><input class="form-control" name="adresse" value="<?= htmlspecialchars((string)($user['adresse'] ?? '')) ?>"></div>
                                 <div class="col-12 mb-3"><label class="form-label">Présentation professionnelle</label><textarea class="form-control" name="bio" rows="4"><?= htmlspecialchars((string)($user['bio'] ?? '')) ?></textarea></div>
+                            </div>
+                            <div class="profile-section-heading profile-security-heading"><span><i class="fas fa-shield-alt" aria-hidden="true"></i></span>
+                                <div>
+                                    <h3>Sécurité du compte</h3>
+                                    <p>Utilisez un mot de passe unique et difficile à deviner.</p>
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="password" class="form-label">Mot de passe</label>
@@ -254,24 +287,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <!-- Scripts JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Aperçu de l'image sélectionnée
-        function previewImage(event) {
-            const preview = document.getElementById('previewImage');
+        // Aperçu immédiat de l'image sélectionnée.
+        function updatePhotoPreview(event) {
+            const preview = document.getElementById('profilePhotoPreview');
             const status = document.getElementById('photoPreviewStatus');
             const file = event.target.files && event.target.files[0];
             if (!file) return;
             if (!file.type.startsWith('image/')) {
                 event.target.value = '';
                 status.textContent = 'Veuillez sélectionner une image valide.';
+                status.classList.remove('is-ready');
                 return;
             }
             const reader = new FileReader();
             reader.onload = () => {
                 preview.src = reader.result;
-                status.textContent = file.name + ' sélectionnée';
+                status.textContent = file.name + ' — aperçu prêt';
+                status.classList.add('is-ready');
             };
             reader.readAsDataURL(file);
         }
+
+        document.getElementById('photoInput').addEventListener('change', updatePhotoPreview);
     </script>
 </body>
 
