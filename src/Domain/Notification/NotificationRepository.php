@@ -1,6 +1,9 @@
 <?php
+
 declare(strict_types=1);
+
 namespace App\Domain\Notification;
+
 use PDO;
 
 final class NotificationRepository
@@ -24,6 +27,27 @@ final class NotificationRepository
             $row['title'] = $days < 0 ? 'Facturation en retard' : ($days === 0 ? 'Facturation prévue aujourd’hui' : 'Facturation à venir');
             $row['message'] = $row['numero_devis'] . ' · ' . trim(strtok((string) $row['destine_a'], "\n")) . ' · ' . number_format((float) $row['total_ttc'], 0, ',', ' ') . ' FCFA';
             $row['url'] = 'liste_facture.php?focus=' . (int) $row['id'];
+            $row['read'] = $row['read_at'] !== null;
+            return $row;
+        }, $statement->fetchAll());
+    }
+
+    public function announcements(int $userId): array
+    {
+        $statement = $this->database->prepare("SELECT a.*, n.read_at
+            FROM app_announcements a
+            LEFT JOIN notification_user n ON n.user_id=:user_id
+                AND n.notification_key=CONCAT('announcement:', a.id)
+            WHERE a.active=1 AND a.starts_at <= NOW()
+                AND (a.ends_at IS NULL OR a.ends_at >= NOW())
+                AND n.dismissed_at IS NULL
+            ORDER BY a.starts_at DESC, a.id DESC LIMIT 30");
+        $statement->execute(['user_id' => $userId]);
+        return array_map(static function (array $row): array {
+            $row['key'] = 'announcement:' . $row['id'];
+            $row['level'] = 'info';
+            $row['type'] = 'announcement';
+            $row['url'] = $row['url'] ?: '#';
             $row['read'] = $row['read_at'] !== null;
             return $row;
         }, $statement->fetchAll());
