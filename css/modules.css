@@ -53,6 +53,7 @@
 .shop-search { position:relative; max-width:620px; }
 .shop-search i { position:absolute; top:50%; left:16px; transform:translateY(-50%); color:var(--brand-text-muted); }
 .shop-search input { padding-left:44px; }
+.infinite-shop-sentinel{display:flex;gap:9px;align-items:center;justify-content:center;min-height:72px;margin-top:18px;color:var(--brand-text-muted);font-size:.75rem;font-weight:800}.infinite-shop-sentinel[hidden]{display:none}.infinite-shop-sentinel i{color:var(--brand-accent-hover);font-size:1rem}
 .shop-count { color:var(--brand-text-muted); font-size:.88rem; font-weight:600; }
 .shop-grid { row-gap:26px !important; }
 .shop-page .product-card { display:flex; flex-direction:column; overflow:hidden; min-height:100%; transition:.25s ease; }

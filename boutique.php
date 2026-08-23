@@ -152,21 +152,39 @@ function guessCategory(array $cats, string $designation): string
         const count = document.getElementById('visibleProducts');
         const category = document.getElementById('shopCategory');
         const availability = document.getElementById('shopAvailability');
+        const grid = document.getElementById('shopGrid');
+        const sentinel = document.createElement('div');
+        sentinel.className = 'infinite-shop-sentinel';
+        sentinel.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Chargement des produits…</span>';
+        grid.after(sentinel);
+        const batchSize = 12;
+        let matchingItems = items;
+        let displayed = 0;
+
+        function revealNextBatch() {
+            displayed = Math.min(displayed + batchSize, matchingItems.length);
+            matchingItems.forEach((item, index) => item.hidden = index >= displayed);
+            sentinel.hidden = displayed >= matchingItems.length;
+        }
+
         function filterShop() {
             const query = search.value.trim().toLocaleLowerCase('fr');
-            let visible = 0;
-            items.forEach(item => {
-                const matches = item.dataset.search.includes(query)
-                    && (!category.value || item.dataset.category === category.value)
-                    && (!availability.value || item.dataset.availability === availability.value);
-                item.hidden = !matches;
-                if (matches) visible++;
-            });
-            count.textContent = visible;
+            matchingItems = items.filter(item => item.dataset.search.includes(query)
+                && (!category.value || item.dataset.category === category.value)
+                && (!availability.value || item.dataset.availability === availability.value));
+            items.forEach(item => item.hidden = true);
+            displayed = 0;
+            count.textContent = matchingItems.length;
+            revealNextBatch();
         }
+
+        new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && displayed < matchingItems.length) revealNextBatch();
+        }, { rootMargin: '500px 0px' }).observe(sentinel);
         search.addEventListener('input', filterShop);
         category.addEventListener('change', filterShop);
         availability.addEventListener('change', filterShop);
+        filterShop();
     </script>
     <script src="js/smart-select.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
