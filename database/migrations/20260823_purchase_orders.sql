@@ -1,0 +1,21 @@
+CREATE TABLE IF NOT EXISTS bons_commande (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    numero_bc VARCHAR(120) NOT NULL,
+    reference_client VARCHAR(160) NOT NULL,
+    client_id INT DEFAULT NULL,
+    devis_id INT DEFAULT NULL,
+    date_commande DATE NOT NULL,
+    date_reception DATE NOT NULL,
+    montant DECIMAL(15,2) DEFAULT NULL,
+    statut VARCHAR(30) NOT NULL DEFAULT 'recu',
+    notes TEXT DEFAULT NULL,
+    fichier VARCHAR(255) NOT NULL,
+    fichier_original VARCHAR(255) NOT NULL,
+    mime_type VARCHAR(100) NOT NULL,
+    created_by INT DEFAULT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uniq_numero_bc (numero_bc),
+    INDEX idx_bc_client (client_id),
+    INDEX idx_bc_devis (devis_id),
+    INDEX idx_bc_statut_date (statut, date_reception)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

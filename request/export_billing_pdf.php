@@ -1,0 +1,13 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__.'/../auth_check.php';require_once __DIR__.'/../bootstrap.php';require_once __DIR__.'/../fpdf186/fpdf.php';
+use App\Domain\Billing\BillingRepository;
+function billingPdfText(mixed $value):string{$text=(string)($value??'');$converted=function_exists('iconv')?@iconv('UTF-8','windows-1252//TRANSLIT//IGNORE',$text):false;return $converted===false?$text:$converted;}
+final class BillingPdf extends FPDF{
+    public function Header():void{$logo=APP_ROOT.'/img/logo_fidest.png';if(is_file($logo))$this->Image($logo,12,9,34);$this->SetXY(52,11);$this->SetTextColor(34,37,75);$this->SetFont('Arial','B',17);$this->Cell(0,8,'ETAT DE FACTURATION',0,1);$this->SetX(52);$this->SetFont('Arial','',8);$this->SetTextColor(107,110,130);$this->Cell(0,5,billingPdfText('Suivi des échéances et montants à facturer'),0,1);$this->SetDrawColor(250,189,2);$this->SetLineWidth(1.2);$this->Line(12,31,285,31);$this->Ln(12);}
+    public function Footer():void{$this->SetY(-15);$this->SetFont('Arial','',7);$this->SetTextColor(107,110,130);$this->Cell(0,4,billingPdfText(app_branding()->footerBlock()),0,1,'C');$this->Cell(0,4,'Page '.$this->PageNo().'/{nb}',0,0,'C');}
+}
+$rows=(new BillingRepository(app_database()))->search($_GET);$pdf=new BillingPdf('L','mm','A4');$pdf->AliasNbPages();$pdf->SetMargins(12,10,12);$pdf->AddPage();$pdf->SetFillColor(34,37,75);$pdf->SetTextColor(255);$pdf->SetFont('Arial','B',8);
+$heads=[['Devis',34],['Client',64],['Emission',28],['Facturation',30],['Total HT',38],['Total TTC',40],['Etat',38]];foreach($heads as[$label,$width])$pdf->Cell($width,9,billingPdfText($label),0,0,'L',true);$pdf->Ln();$pdf->SetFont('Arial','',8);$pdf->SetTextColor(34,36,58);$total=0;
+foreach($rows as$i=>$row){$date=$row['date_facturation_prevue'];$days=$date?(int)((strtotime($date)-strtotime(date('Y-m-d')))/86400):null;$status=$date===null?'A programmer':($days<0?'En retard':($days<=7?'Imminente':'Programmee'));if($i%2===0)$pdf->SetFillColor(246,246,249);$values=[[$row['numero_devis'],34],[$row['nom_client']?:strtok((string)$row['destine_a'],"\n"),64],[$row['date_emission'],28],[$date?:'-',30],[number_format((float)$row['total_ht'],0,',',' ').' FCFA',38],[number_format((float)$row['total_ttc'],0,',',' ').' FCFA',40],[$status,38]];foreach($values as[$value,$width])$pdf->Cell($width,9,billingPdfText(mb_strimwidth((string)$value,0,42,'...')),0,0,'L',$i%2===0);$pdf->Ln();$total+=(float)$row['total_ttc'];}
+$pdf->Ln(4);$pdf->SetFont('Arial','B',11);$pdf->SetTextColor(34,37,75);$pdf->Cell(0,8,billingPdfText(count($rows).' élément(s) - Total TTC : '.number_format($total,0,',',' ').' FCFA'),0,1,'R');$pdf->Output('I','facturation-fidest-'.date('Y-m-d').'.pdf');

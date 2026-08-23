@@ -1,5 +1,11 @@
+<?php
+include 'auth_check.php';
+require_once __DIR__ . '/bootstrap.php';
+$offers = (new App\Domain\Offer\OfferRepository(app_database()))->all();
+?>
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,63 +20,52 @@
             gap: 1rem;
             margin-top: 2rem;
         }
+
         .card {
             border: 1px solid #dee2e6;
             border-radius: 0.5rem;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .card:hover {
             transform: translateY(-5px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+
         .card-header {
             background-color: #1d2b57;
             color: #fff;
             text-align: center;
         }
+
         .card-body {
             background-color: #f8f9fa;
         }
     </style>
 </head>
-<body>
+
+<body class="offer-list-page">
 
     <!-- Menu -->
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="#">
-                <img style="width:auto; height:50px;" src="https://app.fidest.ci/logi/img/logo_connex.jpg" alt="Logo">
+                <img style="width:auto; height:50px;" src="img/logo_fidest.png" alt="Logo">
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="index.php">Accueil</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="generer_devis.php">Générer un devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_devis.php">Liste des devis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_facture.php">Liste des factures</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="liste_client.php">Liste des clients</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="liste_offre.php">Liste des offres</a>
-                    </li>
-                </ul>
+                <?php include 'menu.php'; ?>
             </div>
         </div>
     </nav>
 
     <div class="container mt-4">
-        <h1 class="text-center">Liste des Offres</h1>
+        <div class="page-heading">
+            <h1 class="text-center">Vos offres</h1>
+            <p>Consultez vos références et préparez vos prochaines propositions.</p>
+        </div>
 
         <!-- Button to trigger modal -->
         <div class="text-center mb-4">
@@ -83,12 +78,6 @@
         <div class="card-grid">
             <!-- PHP code to fetch and display offers from the database -->
             <?php
-            include('../logi/connex.php');
-            
-            $query = $con->prepare('SELECT * FROM offre');
-            $query->execute();
-            $offers = $query->fetchAll(PDO::FETCH_ASSOC);
-
             foreach ($offers as $offer) {
                 echo '<div class="card">';
                 echo '<div class="card-header">Numéro d\'Offre: ' . htmlspecialchars($offer['num_offre']) . '</div>';
@@ -97,6 +86,7 @@
                 echo '<p><strong>Référence:</strong> ' . htmlspecialchars($offer['reference_offre']) . '</p>';
                 echo '<p><strong>Commercial dédié:</strong> ' . htmlspecialchars($offer['commercial_dedie']) . '</p>';
                 echo '<p><strong>Date de Création:</strong> ' . htmlspecialchars($offer['date_creat_offre']) . '</p>';
+                echo '<a class="btn btn-sm btn-outline-primary" href="modifier_offre.php?id=' . (int) $offer['id_offre'] . '"><i class="fas fa-pen-to-square"></i> Modifier l\'offre</a>';
                 echo '</div>';
                 echo '</div>';
             }
@@ -160,4 +150,5 @@
     <script src="../logi/js/jquery_1.7.1_jquery.min.js"></script>
     <script src="js/function.js"></script>
 </body>
+
 </html>

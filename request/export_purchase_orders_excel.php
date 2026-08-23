@@ -1,0 +1,14 @@
+<?php
+declare(strict_types=1);
+require_once __DIR__ . '/../auth_check.php';
+require_once __DIR__ . '/../bootstrap.php';
+use App\Domain\PurchaseOrder\PurchaseOrderRepository;
+$rows = (new PurchaseOrderRepository(app_database()))->search($_GET);
+$labels = ['recu' => 'Reçu', 'traitement' => 'En traitement', 'execute' => 'Exécuté', 'annule' => 'Annulé'];
+function orderExcelEscape(mixed $value): string { return htmlspecialchars((string) ($value ?? ''), ENT_QUOTES | ENT_XML1, 'UTF-8'); }
+header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+header('Content-Disposition: attachment; filename="bons-commande-fidest-' . date('Y-m-d') . '.xls"');
+header('Cache-Control: max-age=0');
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Title"><Font ss:Bold="1" ss:Size="16" ss:Color="#22254B"/></Style><Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#22254B" ss:Pattern="Solid"/></Style><Style ss:ID="Amount"><NumberFormat ss:Format="#,##0 &quot;FCFA&quot;"/></Style></Styles><Worksheet ss:Name="Bons de commande"><Table><Row><Cell ss:StyleID="Title" ss:MergeAcross="8"><Data ss:Type="String">FIDEST — Récapitulatif des bons de commande</Data></Cell></Row><Row ss:StyleID="Header"><Cell><Data ss:Type="String">N° interne</Data></Cell><Cell><Data ss:Type="String">N° bon client</Data></Cell><Cell><Data ss:Type="String">Client</Data></Cell><Cell><Data ss:Type="String">Devis</Data></Cell><Cell><Data ss:Type="String">Date du bon</Data></Cell><Cell><Data ss:Type="String">Date réception</Data></Cell><Cell><Data ss:Type="String">Montant</Data></Cell><Cell><Data ss:Type="String">Statut</Data></Cell><Cell><Data ss:Type="String">Notes</Data></Cell></Row><?php foreach ($rows as $row): ?><Row><Cell><Data ss:Type="String"><?= orderExcelEscape($row['numero_bc']) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($row['reference_client']) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($row['nom_client']) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($row['numero_devis']) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($row['date_commande']) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($row['date_reception']) ?></Data></Cell><Cell ss:StyleID="Amount"><Data ss:Type="Number"><?= (float) ($row['montant'] ?? 0) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($labels[$row['statut']] ?? $row['statut']) ?></Data></Cell><Cell><Data ss:Type="String"><?= orderExcelEscape($row['notes']) ?></Data></Cell></Row><?php endforeach; ?></Table><WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>2</SplitHorizontal><TopRowBottomPane>2</TopRowBottomPane></WorksheetOptions></Worksheet></Workbook>

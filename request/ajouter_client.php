@@ -1,22 +1,25 @@
 <?php
-include('../../logi/connex.php');
+declare(strict_types=1);
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Collecte des données du formulaire
-    $code_client = $_POST['code_client'];
-    $nom_client = $_POST['nom_client'];
-    $localisation_client = $_POST['localisation_client'];
-    $commune_client = $_POST['commune_client'];
-    $bp_client = $_POST['bp_client'];
-    $pays_client = $_POST['pays_client'];
-    $date_creat_client = $_POST['date_creat_client'];
+require_once dirname(__DIR__) . '/auth_check.php';
+require_once dirname(__DIR__) . '/bootstrap.php';
 
-    // Préparation de la requête d'insertion
-    $query = $con->prepare('INSERT INTO client (code_client, nom_client, localisation_client, commune_client, bp_client, pays_client, date_creat_client) VALUES (?, ?, ?, ?, ?, ?, ?)');
-    $query->execute([$code_client, $nom_client, $localisation_client, $commune_client, $bp_client, $pays_client, $date_creat_client]);
+use App\Domain\Client\ClientRepository;
 
-    // Redirection après l'ajout
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: ../liste_client.php');
-    exit();
+    exit;
 }
-?>
+
+(new ClientRepository(app_database()))->create([
+    'code' => trim((string) ($_POST['code_client'] ?? '')),
+    'name' => trim((string) ($_POST['nom_client'] ?? '')),
+    'location' => trim((string) ($_POST['localisation_client'] ?? '')),
+    'city' => trim((string) ($_POST['commune_client'] ?? '')),
+    'postal_box' => trim((string) ($_POST['bp_client'] ?? '')),
+    'country' => trim((string) ($_POST['pays_client'] ?? '')),
+    'created_at' => (string) ($_POST['date_creat_client'] ?? ''),
+]);
+
+header('Location: ../liste_client.php');
+exit;

@@ -1,95 +1,97 @@
 <?php
-session_start();
-include('../../logi/connex.php');
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $emisPar = isset($_POST['emisPar']) ? $_POST['emisPar'] : '';
-    $destineA = isset($_POST['destineA']) ? $_POST['destineA'] : '';
-    $numeroDevis = isset($_POST['numeroDevis']) ? $_POST['numeroDevis'] : '';
-    $delaiLivraison = isset($_POST['delaiLivraison']) ? $_POST['delaiLivraison'] : '';
-    $dateEmission = isset($_POST['dateEmission']) ? $_POST['dateEmission'] : '';
-    $dateExpiration = isset($_POST['dateExpiration']) ? $_POST['dateExpiration'] : '';
-    $termesConditions = isset($_POST['termesConditions']) ? $_POST['termesConditions'] : '';
-    $piedDePage = isset($_POST['piedDePage']) ? $_POST['piedDePage'] : '';
-    $totalHT = isset($_POST['totalHT']) ? $_POST['totalHT'] : '0';
-    $totalTTC = isset($_POST['totalTTC']) ? $_POST['totalTTC'] : '0';
-    $tva = isset($_POST['tva']) ? $_POST['tva'] : '0';
-    $clientId = isset($_POST['client_id']) ? $_POST['client_id'] : null;
-    $offreId = isset($_POST['offre_id']) ? $_POST['offre_id'] : null;
-    $tvaFacturable = isset($_POST['tvaFacturable']) ? $_POST['tvaFacturable'] : '0';
-    $publierDevis = isset($_POST['publierDevis']) ? $_POST['publierDevis'] : '0';
-    $correspondant = isset($_POST['correspondant']) ? $_POST['correspondant'] : '';
+declare(strict_types=1);
 
-    
-    $logo = '';
-     // Gestion du logo
-    if (isset($_FILES['logo']) && $_FILES['logo']['error'] == UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['logo']['tmp_name'];
-        $fileName = $_FILES['logo']['name'];
-        $fileNameCmps = explode(".", $fileName);
-        $fileExtension = strtolower(end($fileNameCmps));
+require_once dirname(__DIR__) . '/auth_check.php';
+require_once dirname(__DIR__) . '/bootstrap.php';
 
-        // Définir le numéro de devis (à récupérer ou à calculer)
-        $devisQuery = $con->prepare('SELECT COUNT(*) AS count FROM devis');
-        $devisQuery->execute();
-        $count = $devisQuery->fetchColumn();
-        $index_actuel = $count + 1;
+use App\Application\Quote\CreateQuote;
+use App\Application\Quote\LogoUploader;
+use App\Domain\Quote\QuoteRepository;
 
-        // Définir le nouveau nom de fichier
-        $newFileName = 'logo_' . $index_actuel . '.' . $fileExtension;
-        $uploadFileDir = '../logo/';
-        $dest_path = $uploadFileDir . $newFileName;
-
-        // Déplacer le fichier dans le dossier de destination
-        if (move_uploaded_file($fileTmpPath, $dest_path)) {
-            $logo = $newFileName; // Stocker le nom du fichier pour l'insertion dans la base de données
-        } else {
-            echo "Erreur lors du déplacement du fichier.";
-            exit;
-        }
-    }
-    
-    
-    $devis = $con->prepare('SELECT * FROM devis');
-    $devis->execute();
-    
-    $nb_devis = $devis->rowcount();
-    $index_actuel = $nb_devis+1;
-    
-    $numeroDevis = 'FI-DEV-PAB-'.$index_actuel;
-    
-
-    
-    // Enregistrer le devis
-    $stmt = $con->prepare("INSERT INTO devis (numero_devis, delai_livraison, date_emission, date_expiration, emis_par, destine_a, termes_conditions, pied_de_page, total_ht, total_ttc, logo, client_id, offre_id, tva_facturable, publier_devis, tva, correspondant) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->execute([$numeroDevis, $delaiLivraison, $dateEmission, $dateExpiration, $emisPar, $destineA, $termesConditions, $piedDePage, $totalHT, $totalTTC, $logo, $clientId, $offreId, $tvaFacturable, $publierDevis, $tva, $correspondant]);
-    
-    // Récupérer l'ID du devis nouvellement créé
-    $devisId = $con->lastInsertId();
-    
-    // Enregistrement des lignes de devis
-    $designations = $_POST['designation'];
-    $prix = $_POST['prix'];
-    $quantites = $_POST['quantite'];
-    $tvas = $_POST['tva'];
-    $remises = $_POST['remise'];
-    $totaux = $_POST['total'];
-
-    for ($i = 0; $i < count($designations); $i++) {
-        $designation = $designations[$i];
-        $prixUnitaire = $prix[$i];
-        $quantite = $quantites[$i];
-        $tva = $tvas[$i];
-        $remise = $remises[$i];
-        $total = $totaux[$i];
-
-        // Enregistrer chaque ligne de devis
-        $stmt = $con->prepare("INSERT INTO ligne_devis (devis_id, designation, prix, quantite, tva, remise, total) VALUES (?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$devisId, $designation, $prixUnitaire, $quantite, $tva, $remise, $total]);
-    }
-
-    echo "<h1>Devis enregistré avec succès</h1>";
-    
-    $_SESSION['devisId'] = $devisId;
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    exit('Méthode non autorisée.');
 }
-?>
+
+try {
+    $database = app_database();
+    $repository = new QuoteRepository($database);
+    $logo = (new LogoUploader(APP_ROOT . '/logo'))->upload($_FILES['logo'] ?? null);
+    $issuer = app_branding()->issuerBlock();
+
+    $clientId = (int) ($_POST['client_id'] ?? 0);
+    $offerId = (int) ($_POST['offre_id'] ?? 0);
+    $issuedAt = trim((string) ($_POST['dateEmission'] ?? ''));
+    $expiresAt = trim((string) ($_POST['dateExpiration'] ?? ''));
+    if ($clientId <= 0 || $offerId <= 0 || $issuedAt === '' || $expiresAt === '') {
+        throw new InvalidArgumentException('Sélectionnez un client, une offre et une date d’expiration.');
+    }
+    $clientStatement = $database->prepare('SELECT nom_client, localisation_client, commune_client, bp_client, pays_client FROM client WHERE id_client = :id');
+    $clientStatement->execute(['id' => $clientId]);
+    $client = $clientStatement->fetch();
+    $recipient = $client ? implode("\n", array_filter([
+        $client['nom_client'],
+        $client['localisation_client'],
+        $client['commune_client'],
+        $client['bp_client'],
+        $client['pays_client'],
+    ])) : trim((string) ($_POST['destineA'] ?? ''));
+
+    $quote = [
+        'number' => '',
+        'delivery_time' => trim((string) ($_POST['delaiLivraison'] ?? '')),
+        'issued_at' => $issuedAt,
+        'expires_at' => $expiresAt,
+        'billing_at' => (string) ($_POST['dateFacturation'] ?? '') ?: null,
+        'issuer' => $issuer,
+        'recipient' => $recipient,
+        'terms' => trim((string) ($_POST['termesConditions'] ?? '')),
+        'footer' => trim((string) ($_POST['piedDePage'] ?? '')) ?: app_branding()->footerBlock(),
+        'total_excluding_tax' => (float) ($_POST['totalHT'] ?? 0),
+        'total_including_tax' => (float) ($_POST['totalTTC'] ?? 0),
+        'logo' => $logo,
+        'client_id' => $clientId,
+        'offer_id' => $offerId,
+        'taxable' => (int) ($_POST['tvaFacturable'] ?? 0),
+        'published' => (int) ($_POST['publierDevis'] ?? 0),
+        'tax' => (float) ($_POST['tvaTotal'] ?? 0),
+        'contact' => trim((string) ($_POST['correspondant'] ?? '')),
+        'created_by' => (int) ($_SESSION['user_id'] ?? 0) ?: null,
+    ];
+
+    $lines = [];
+    $designations = (array) ($_POST['designation'] ?? []);
+    $lineTaxes = (array) ($_POST['tva'] ?? []);
+    foreach ($designations as $index => $designation) {
+        if (trim((string) $designation) === '') {
+            continue;
+        }
+        $lines[] = [
+            'description' => trim((string) $designation),
+            'price' => (float) (($_POST['prix'] ?? [])[$index] ?? 0),
+            'quantity' => (float) (($_POST['quantite'] ?? [])[$index] ?? 0),
+            'tax' => (float) ($lineTaxes[$index] ?? 0),
+            'discount' => (float) (($_POST['remise'] ?? [])[$index] ?? 0),
+            'total' => (float) (($_POST['total'] ?? [])[$index] ?? 0),
+        ];
+    }
+
+    $quoteId = (new CreateQuote($database, $repository))->execute($quote, $lines);
+    $_SESSION['devisId'] = $quoteId;
+
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => true, 'quote_id' => $quoteId], JSON_THROW_ON_ERROR);
+} catch (InvalidArgumentException $exception) {
+    http_response_code(422);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => false, 'message' => $exception->getMessage()], JSON_THROW_ON_ERROR);
+} catch (Throwable $exception) {
+    error_log($exception->__toString());
+    http_response_code(500);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode([
+        'success' => false,
+        'message' => 'Impossible d’enregistrer le devis. Vérifiez la configuration de la base de données.',
+    ], JSON_THROW_ON_ERROR);
+}

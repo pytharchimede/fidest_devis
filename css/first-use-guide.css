@@ -1,0 +1,64 @@
+.first-use-guide {
+  display: none;
+}
+.first-use-guide.is-open {
+  display: block;
+}
+.first-use-guide__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1400;
+  background: rgba(24, 28, 54, 0.58);
+}
+.first-use-guide__dialog {
+  position: fixed;
+  z-index: 1401;
+  top: 50%;
+  left: 50%;
+  width: min(500px, calc(100vw - 32px));
+  padding: 32px;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border-top: 5px solid #fabd02;
+  border-radius: 14px;
+  box-shadow: 0 24px 70px rgba(20, 22, 43, 0.3);
+}
+.first-use-guide__close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  border: 0;
+  background: transparent;
+  color: #6b6e82;
+  font-size: 1.7rem;
+}
+.first-use-guide__eyebrow {
+  color: #8a6900;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.first-use-guide__dialog h2 {
+  margin: 10px 0;
+  color: #22254b;
+  font-size: 1.55rem;
+}
+.first-use-guide__dialog p {
+  margin: 0 0 24px;
+  color: #5d6075;
+  line-height: 1.65;
+}
+.first-use-guide__help {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 1100;
+  width: 42px;
+  height: 42px;
+  border: 1px solid #e3e4ec;
+  border-radius: 50%;
+  color: #22254b;
+  background: #fff;
+  box-shadow: 0 8px 25px rgba(20, 22, 43, 0.16);
+}

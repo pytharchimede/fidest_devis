@@ -1,31 +1,13 @@
 <?php
-session_start();
-include('../../logi/connex.php');
+declare(strict_types=1);
 
-// Préparer la requête pour récupérer le nombre de devis par jour
-$query = "
-    SELECT DATE(date_emission) AS date, COUNT(*) AS count
-    FROM devis
-    WHERE masque = 0
-    GROUP BY DATE(date_emission)
-    ORDER BY DATE(date_emission) ASC
-";
+require_once dirname(__DIR__) . '/auth_check.php';
+require_once dirname(__DIR__) . '/bootstrap.php';
 
-$result = $con->query($query);
+$activity = (new App\Domain\Quote\QuoteRepository(app_database()))->activity();
 
-// Initialiser les tableaux pour les labels et les données
-$labels = [];
-$data = [];
-
-// Récupérer les données et les ajouter aux tableaux
-while ($row = $result->fetch(PDO::FETCH_ASSOC)) {
-    $labels[] = $row['date'];
-    $data[] = (int)$row['count'];
-}
-
-// Retourner les données au format JSON
+header('Content-Type: application/json; charset=utf-8');
 echo json_encode([
-    'labels' => $labels,
-    'data' => $data
-]);
-?>
+    'labels' => array_column($activity, 'date'),
+    'data' => array_map('intval', array_column($activity, 'count')),
+], JSON_THROW_ON_ERROR);
