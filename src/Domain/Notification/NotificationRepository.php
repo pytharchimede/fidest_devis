@@ -53,6 +53,31 @@ final class NotificationRepository
         }, $statement->fetchAll());
     }
 
+    public function shopOrderAlerts(int $userId): array
+    {
+        $statement = $this->database->prepare("SELECT co.id,co.reference_commande,co.nom_contact,co.entreprise,co.total_estime,co.statut,co.created_at,
+            TIMESTAMPDIFF(HOUR,co.created_at,NOW()) age_hours,n.read_at
+            FROM commandes_boutique co
+            LEFT JOIN notification_user n ON n.user_id=:user_id AND n.notification_key=CONCAT('shop-order:',co.id,':',co.statut,':',CURRENT_DATE)
+            WHERE co.statut NOT IN ('terminee','annulee') AND n.dismissed_at IS NULL
+            ORDER BY (co.statut='nouvelle') DESC,co.created_at ASC LIMIT 40");
+        $statement->execute(['user_id' => $userId]);
+        return array_map(static function (array $row): array {
+            $ageHours = (int) $row['age_hours'];
+            $customer = trim((string) ($row['entreprise'] ?: $row['nom_contact']));
+            $labels = ['nouvelle' => 'Nouvelle commande web', 'contactee' => 'Commande à confirmer', 'confirmee' => 'Commande à préparer', 'preparation' => 'Préparation à finaliser', 'livraison' => 'Livraison à finaliser'];
+            $row['key'] = 'shop-order:' . $row['id'] . ':' . $row['statut'] . ':' . date('Y-m-d');
+            $row['type'] = 'shop_order';
+            $row['level'] = $row['statut'] === 'nouvelle' || $ageHours >= 48 ? 'warning' : 'info';
+            $row['title'] = $labels[$row['statut']] ?? 'Commande en cours';
+            $row['message'] = $row['reference_commande'] . ' · ' . $customer . ' · ' . number_format((float) $row['total_estime'], 0, ',', ' ') . ' FCFA';
+            if ($ageHours >= 24) $row['message'] .= ' · En attente depuis ' . max(1, (int) floor($ageHours / 24)) . ' j';
+            $row['url'] = 'commandes_boutique.php?focus=' . (int) $row['id'];
+            $row['read'] = $row['read_at'] !== null;
+            return $row;
+        }, $statement->fetchAll());
+    }
+
     public function mark(int $userId, string $key, bool $dismiss): void
     {
         $sql = 'INSERT INTO notification_user(user_id,notification_key,read_at,dismissed_at) VALUES(:user,:key,NOW(),' . ($dismiss ? 'NOW()' : 'NULL') . ')

@@ -13,6 +13,7 @@ $menuItems = [
     ['liste_devis.php', 'Devis'],
     ['liste_bl.php', 'Livraisons'],
     ['bons_commande.php', 'Commandes'],
+    ['commandes_boutique.php', 'Commandes web'],
     ['liste_facture.php', 'Factures'],
     ['liste_client.php', 'Clients'],
     ['liste_offre.php', 'Offres'],
@@ -42,7 +43,7 @@ if ($canManageAnnouncements) {
 <div class="notification-center">
     <button class="notification-bell" type="button" aria-label="Notifications"><i class="fas fa-bell"></i><span class="notification-count">0</span></button>
     <div class="notification-panel">
-        <div class="notification-head"><strong>Notifications</strong><a href="liste_facture.php">Voir la facturation</a></div>
+        <div class="notification-head"><strong>Notifications</strong><span>Alertes FIDEST</span></div>
         <div class="notification-list"></div>
     </div>
 </div>

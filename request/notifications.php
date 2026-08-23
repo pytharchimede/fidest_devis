@@ -15,5 +15,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 $userId = (int) $_SESSION['user_id'];
-$items = array_merge($repository->announcements($userId), $repository->billingAlerts($userId));
+$items = array_merge($repository->shopOrderAlerts($userId), $repository->announcements($userId), $repository->billingAlerts($userId));
 echo json_encode(['items' => $items, 'unread' => count(array_filter($items, static fn(array $item): bool => !$item['read']))], JSON_UNESCAPED_UNICODE);
