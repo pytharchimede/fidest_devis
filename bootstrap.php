@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 define('APP_ROOT', __DIR__);
@@ -34,7 +35,53 @@ spl_autoload_register(static function (string $class): void {
 
 function app_database(): PDO
 {
-    return App\Infrastructure\Database\Connection::get();
+    static $migrationsApplied = false;
+    $database = App\Infrastructure\Database\Connection::get();
+    if (!$migrationsApplied) {
+        app_run_migrations($database);
+        $migrationsApplied = true;
+    }
+    return $database;
+}
+
+function app_run_migrations(PDO $database): void
+{
+    $database->exec(
+        'CREATE TABLE IF NOT EXISTS app_migrations (' .
+            'migration VARCHAR(255) NOT NULL PRIMARY KEY,' .
+            'applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP' .
+            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
+    );
+
+    $appliedStatement = $database->query('SELECT migration FROM app_migrations');
+    $applied = array_flip($appliedStatement->fetchAll(PDO::FETCH_COLUMN));
+    $migrationFiles = glob(APP_ROOT . '/database/migrations/*.sql') ?: [];
+    sort($migrationFiles, SORT_STRING);
+
+    foreach ($migrationFiles as $migrationFile) {
+        $migration = basename($migrationFile);
+        if (isset($applied[$migration])) {
+            continue;
+        }
+
+        $sql = trim((string) file_get_contents($migrationFile));
+        if ($sql === '') {
+            continue;
+        }
+
+        $statements = preg_split('/;\s*(?:\R|$)/', $sql) ?: [];
+        foreach ($statements as $statement) {
+            $statement = trim($statement);
+            if ($statement !== '') {
+                $database->exec($statement);
+            }
+        }
+
+        $migrationStatement = $database->prepare(
+            'INSERT INTO app_migrations (migration) VALUES (:migration)'
+        );
+        $migrationStatement->execute(['migration' => $migration]);
+    }
 }
 
 function app_branding(): App\Infrastructure\Branding\Branding

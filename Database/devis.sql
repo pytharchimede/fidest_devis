@@ -35,6 +35,7 @@ CREATE TABLE `devis` (
   `delai_livraison` text NOT NULL,
   `date_emission` date NOT NULL,
   `date_expiration` date NOT NULL,
+  `date_facturation_prevue` date DEFAULT NULL,
   `emis_par` text NOT NULL,
   `destine_a` text NOT NULL,
   `logo` text DEFAULT NULL,
