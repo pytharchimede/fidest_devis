@@ -16,19 +16,16 @@ $con = $pdo;
 $userObj = new User($pdo);
 $devisObj = new Devis($pdo);
 
-// Vérifier le devisId via GET (devisId ou id) ou session
-if (!isset($_SESSION['devisId']) && !isset($_GET['devisId']) && !isset($_GET['id'])) {
+// Accepter les variantes historiques, puis guider l'utilisateur si aucun devis n'est choisi.
+$devisId = (int)($_GET['devisId'] ?? $_GET['devis_id'] ?? $_GET['id'] ?? 0);
+if ($devisId <= 0) {
+    if (isset($_SESSION['user_id'])) {
+        header('Location: ../liste_bl.php?select=1#pills-unsigned');
+        exit;
+    }
     http_response_code(400);
-    echo 'ID de devis non défini.';
+    echo 'Veuillez sélectionner un devis pour générer son bon de livraison.';
     exit;
-}
-$devisId = null;
-if (isset($_GET['devisId'])) {
-    $devisId = (int)$_GET['devisId'];
-} elseif (isset($_GET['id'])) {
-    $devisId = (int)$_GET['id'];
-} else {
-    $devisId = (int)$_SESSION['devisId'];
 }
 $_SESSION['devisId'] = $devisId;
 
