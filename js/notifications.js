@@ -3,9 +3,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const bell = center.querySelector(".notification-bell"), panel = center.querySelector(".notification-panel"), list = center.querySelector(".notification-list"), badge = center.querySelector(".notification-count"); let registration = null;
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("service-worker.js").then(value => { registration = value; }).catch(() => {});
   const mark = (key, dismiss = false) => fetch("request/notifications.php", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ key, dismiss }), keepalive: true });
-  const iconFor = item => item.type === "announcement" ? "fa-bullhorn" : item.type === "shop_order" ? "fa-cart-shopping" : "fa-file-invoice-dollar";
+  const iconFor = item => item.type === "announcement" ? "fa-bullhorn" : item.type === "shop_order" ? "fa-cart-shopping" : item.type === "shop_chat" ? "fa-comments" : "fa-file-invoice-dollar";
   async function systemNotify(item) {
-    if (!("Notification" in window) || item.read || item.type !== "shop_order" || Notification.permission !== "granted") return;
+    if (!("Notification" in window) || item.read || !["shop_order","shop_chat"].includes(item.type) || Notification.permission !== "granted") return;
     const key = `fidest-system-notification:${item.key}`, lastSent = Number(localStorage.getItem(key) || 0), retryDelay = 5 * 60 * 1000;
     if (Date.now() - lastSent < retryDelay) return; localStorage.setItem(key, String(Date.now()));
     const options = { body: item.message, icon: "img/logo_fidest.png", badge: "img/logo_fidest.png", tag: item.key, data: { url: item.url, key: item.key }, requireInteraction: item.level === "warning", renotify: true };

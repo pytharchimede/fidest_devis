@@ -78,6 +78,21 @@ final class NotificationRepository
         }, $statement->fetchAll());
     }
 
+    public function shopChatAlerts(int $userId): array
+    {
+        $statement = $this->database->prepare("SELECT c.id,c.nom_visiteur,p.designation,MAX(m.id) last_message_id,COUNT(*) unread_count,n.read_at
+            FROM conversations_boutique c JOIN messages_boutique m ON m.conversation_id=c.id AND m.expediteur='visiteur' AND m.lu_at IS NULL
+            LEFT JOIN produit p ON p.id_produit=c.produit_id
+            LEFT JOIN notification_user n ON n.user_id=:user_id AND n.notification_key=CONCAT('shop-chat:',c.id,':',m.id)
+            WHERE n.dismissed_at IS NULL GROUP BY c.id,c.nom_visiteur,p.designation,n.read_at ORDER BY MAX(m.id) DESC LIMIT 30");
+        $statement->execute(['user_id' => $userId]);
+        return array_map(static function (array $row): array {
+            $row['key'] = 'shop-chat:' . $row['id'] . ':' . $row['last_message_id']; $row['type'] = 'shop_chat'; $row['level'] = 'info';
+            $row['title'] = 'Nouveau message boutique'; $row['message'] = ($row['nom_visiteur'] ?: 'Un visiteur') . ($row['designation'] ? ' · ' . $row['designation'] : '') . ' · ' . $row['unread_count'] . ' message(s)';
+            $row['url'] = 'messagerie_boutique.php?conversation=' . (int) $row['id']; $row['read'] = $row['read_at'] !== null; return $row;
+        }, $statement->fetchAll());
+    }
+
     public function mark(int $userId, string $key, bool $dismiss): void
     {
         $sql = 'INSERT INTO notification_user(user_id,notification_key,read_at,dismissed_at) VALUES(:user,:key,NOW(),' . ($dismiss ? 'NOW()' : 'NULL') . ')
