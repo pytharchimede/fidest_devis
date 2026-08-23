@@ -21,6 +21,12 @@ try {
     $issuer = app_branding()->issuerBlock();
 
     $clientId = (int) ($_POST['client_id'] ?? 0);
+    $offerId = (int) ($_POST['offre_id'] ?? 0);
+    $issuedAt = trim((string) ($_POST['dateEmission'] ?? ''));
+    $expiresAt = trim((string) ($_POST['dateExpiration'] ?? ''));
+    if ($clientId <= 0 || $offerId <= 0 || $issuedAt === '' || $expiresAt === '') {
+        throw new InvalidArgumentException('Sélectionnez un client, une offre et une date d’expiration.');
+    }
     $clientStatement = $database->prepare('SELECT nom_client, localisation_client, commune_client, bp_client, pays_client FROM client WHERE id_client = :id');
     $clientStatement->execute(['id' => $clientId]);
     $client = $clientStatement->fetch();
@@ -35,8 +41,8 @@ try {
     $quote = [
         'number' => '',
         'delivery_time' => trim((string) ($_POST['delaiLivraison'] ?? '')),
-        'issued_at' => (string) ($_POST['dateEmission'] ?? ''),
-        'expires_at' => (string) ($_POST['dateExpiration'] ?? ''),
+        'issued_at' => $issuedAt,
+        'expires_at' => $expiresAt,
         'billing_at' => (string) ($_POST['dateFacturation'] ?? '') ?: null,
         'issuer' => $issuer,
         'recipient' => $recipient,
@@ -46,7 +52,7 @@ try {
         'total_including_tax' => (float) ($_POST['totalTTC'] ?? 0),
         'logo' => $logo,
         'client_id' => $clientId,
-        'offer_id' => (int) ($_POST['offre_id'] ?? 0),
+        'offer_id' => $offerId,
         'taxable' => (int) ($_POST['tvaFacturable'] ?? 0),
         'published' => (int) ($_POST['publierDevis'] ?? 0),
         'tax' => (float) ($_POST['tvaTotal'] ?? 0),
@@ -76,6 +82,10 @@ try {
 
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success' => true, 'quote_id' => $quoteId], JSON_THROW_ON_ERROR);
+} catch (InvalidArgumentException $exception) {
+    http_response_code(422);
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => false, 'message' => $exception->getMessage()], JSON_THROW_ON_ERROR);
 } catch (Throwable $exception) {
     error_log($exception->__toString());
     http_response_code(500);

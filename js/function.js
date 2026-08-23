@@ -6,6 +6,21 @@ $(document).ready(function () {
   $("#saveBtn").on("click", function (e) {
     e.preventDefault(); // Empêche le comportement de soumission du formulaire par défaut
 
+    var clientId = $("#clientSelect").val();
+    var offreId = $("#offreSelect").val();
+    var dateExpiration = $("#dateExpiration").val();
+    if (!clientId || !offreId || !dateExpiration) {
+      document.dispatchEvent(
+        new CustomEvent("quote:error", {
+          detail: {
+            message:
+              "Sélectionnez un client, une offre et une date d’expiration.",
+          },
+        }),
+      );
+      return;
+    }
+
     // Sélectionner le formulaire pour créer l'objet FormData
     var form = $("#devisForm")[0]; // Utilisez [0] pour obtenir l'élément DOM natif
 
@@ -25,9 +40,6 @@ $(document).ready(function () {
     var logoFile = $("#logoUpload")[0].files[0]; // Récupère le fichier de logo
 
     // Récupération des valeurs des champs client et offre
-    var clientId = $("#clientSelect").val();
-    var offreId = $("#offreSelect").val();
-
     // Récupération des valeurs des champs additionnels
     var termesConditions = $("#termesConditions").val() || "";
     var piedDePage = $("#piedDePage").val() || "";

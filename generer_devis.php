@@ -51,7 +51,7 @@ $defaultFooter = app_branding()->footerBlock();
         <div class="row mb-3">
             <div class="col-md-6">
                 <label for="clientSelect" class="form-label">Sélectionner le client</label>
-                <select class="form-control" id="clientSelect" name="client_id" data-smart-select data-placeholder="Rechercher un client…">
+                <select class="form-control" id="clientSelect" name="client_id" required data-smart-select data-placeholder="Rechercher un client…">
                     <option value="" disabled selected>Choisissez un client</option>
                     <?php foreach ($clients as $client): ?>
                         <?php $recipient = implode("\n", array_filter([
@@ -70,7 +70,7 @@ $defaultFooter = app_branding()->footerBlock();
             </div>
             <div class="col-md-6">
                 <label for="offreSelect" class="form-label">Sélectionner l'offre</label>
-                <select class="form-control" id="offreSelect" name="offre_id" data-smart-select data-placeholder="Rechercher un produit ou une offre…">
+                <select class="form-control" id="offreSelect" name="offre_id" required data-smart-select data-placeholder="Rechercher un produit ou une offre…">
                     <option value="" disabled selected>Choisissez une offre</option>
                     <?php foreach ($offres as $offre): ?>
                         <option value="<?php echo $offre['id_offre']; ?>">
@@ -129,7 +129,7 @@ $defaultFooter = app_branding()->footerBlock();
                 </div>
                 <div class="form-group">
                     <label for="dateExpiration" class="form-label">Date d'expiration</label>
-                    <input type="date" class="form-control" id="dateExpiration" name="dateExpiration">
+                    <input type="date" class="form-control" id="dateExpiration" name="dateExpiration" required>
                 </div>
                 <div class="form-group">
                     <label for="dateFacturation" class="form-label">Date prévue de facturation</label>
@@ -248,7 +248,7 @@ $defaultFooter = app_branding()->footerBlock();
     <script src="../logi/js/jquery_1.7.1_jquery.min.js"></script>
     <script src="js/function.js"></script>
     <script src="js/quote-pro.js"></script>
-<script src="js/smart-select.js"></script>
+    <script src="js/smart-select.js"></script>
 </body>
 
 </html>

@@ -48,6 +48,7 @@ CREATE TABLE `devis` (
   `publier_devis` int(11) NOT NULL,
   `tva` decimal(10,2) NOT NULL,
   `correspondant` text NOT NULL,
+  `created_by_user_id` int(11) DEFAULT NULL,
   `masque` int(11) NOT NULL,
   `validation_commerciale` int(11) NOT NULL,
   `validation_generale` int(11) NOT NULL

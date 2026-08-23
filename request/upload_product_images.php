@@ -10,7 +10,10 @@ $pdo = $db->getConnection();
 // dossiers
 $uploadDir = dirname(__DIR__) . '/photo/produits';
 if (!is_dir($uploadDir)) {
-    @mkdir($uploadDir, 0775, true);
+    mkdir($uploadDir, 0775, true);
+}
+if (!is_dir($uploadDir) || !is_writable($uploadDir)) {
+    jsonRedirect('../catalogue_media.php?err=upload_dir');
 }
 
 function jsonRedirect(string $url)
@@ -33,12 +36,13 @@ if (!isset($_FILES['images'])) {
 }
 
 $allowed = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
+$fileInfo = new finfo(FILEINFO_MIME_TYPE);
+$uploaded = 0;
 $maxSize = 5 * 1024 * 1024; // 5MB
 
 $count = count($_FILES['images']['name']);
 for ($i = 0; $i < $count; $i++) {
     $name = $_FILES['images']['name'][$i] ?? '';
-    $type = $_FILES['images']['type'][$i] ?? '';
     $tmp  = $_FILES['images']['tmp_name'][$i] ?? '';
     $size = $_FILES['images']['size'][$i] ?? 0;
     $err  = $_FILES['images']['error'][$i] ?? UPLOAD_ERR_NO_FILE;
@@ -46,6 +50,7 @@ for ($i = 0; $i < $count; $i++) {
     if ($err !== UPLOAD_ERR_OK) {
         continue;
     }
+    $type = $fileInfo->file($tmp);
     if (!isset($allowed[$type])) {
         continue;
     }
@@ -61,7 +66,8 @@ for ($i = 0; $i < $count; $i++) {
     if (move_uploaded_file($tmp, $dest)) {
         $stmt = $pdo->prepare('INSERT INTO produit_image(produit_id, filename) VALUES(:pid, :fn)');
         $stmt->execute([':pid' => $produitId, ':fn' => $filename]);
+        $uploaded++;
     }
 }
 
-jsonRedirect('../catalogue_media.php');
+jsonRedirect('../catalogue_media.php?' . ($uploaded > 0 ? 'uploaded=' . $uploaded : 'err=upload'));

@@ -224,6 +224,13 @@ $prods = $pdo->query('SELECT id_produit, designation, slug FROM produit ORDER BY
         </div>
 
         <div class="card p-3 mb-4">
+            <?php if (isset($_GET['uploaded'])): ?>
+                <div class="alert alert-success"><?= (int) $_GET['uploaded'] ?> image(s) ajoutée(s) avec succès.</div>
+            <?php elseif (($_GET['err'] ?? '') === 'upload_dir'): ?>
+                <div class="alert alert-danger">Le dossier de stockage des images est introuvable ou non accessible en écriture.</div>
+            <?php elseif (($_GET['err'] ?? '') === 'upload'): ?>
+                <div class="alert alert-warning">Aucune image n’a pu être enregistrée. Vérifiez le format et la taille des fichiers.</div>
+            <?php endif; ?>
             <form method="post" class="mb-3 d-flex justify-content-end">
                 <input type="hidden" name="action" value="sync">
                 <button class="btn btn-outline-primary"><i class="fa-solid fa-rotate me-2"></i>Mise à jour base produit (prix & stock)</button>
