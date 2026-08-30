@@ -16,7 +16,7 @@ $menuItems = [
     ['liste_devis.php', 'Devis'],
     ['bons_commande.php', 'Commandes'],
     ['suivi_affaires.php', 'Suivi des affaires'],
-    ['archives.php', 'Exercices & Archives'],
+    ['fiches_expression_besoin.php', 'Registre des FEB'],
     ['liste_bl.php', 'BL signés'],
     ['liste_facture.php', 'Factures & Encaissements'],
     ['commandes_boutique.php', 'Commandes web'],
@@ -47,6 +47,11 @@ if ($canManageAnnouncements) {
         <div class="notification-list"></div>
     </div>
 </div><?php $menuUserName=trim((string)(($menuUser['prenom']??'').' '.($menuUser['nom']??'')));$menuUserPhoto=(string)($menuUser['photo']??'');if($menuUserPhoto==='')$menuUserPhoto='https://www.gravatar.com/avatar/'.md5(strtolower(trim((string)($menuUser['mail_pro']??'')))).'?d=mp&s=120';?><div class="connected-user"><button class="connected-user__trigger" type="button" aria-expanded="false" aria-label="Ouvrir le menu utilisateur"><img src="<?=htmlspecialchars($menuUserPhoto,ENT_QUOTES)?>" alt=""><span><strong><?=htmlspecialchars($menuUserName?:'Utilisateur')?></strong><small><?=htmlspecialchars((string)($menuUser['fonction']?:'Collaborateur FIDEST'))?></small></span><i class="fa-solid fa-chevron-down"></i></button><div class="connected-user__dropdown"><div class="connected-user__identity"><img src="<?=htmlspecialchars($menuUserPhoto,ENT_QUOTES)?>" alt=""><div><strong><?=htmlspecialchars($menuUserName?:'Utilisateur')?></strong><small><?=htmlspecialchars((string)($menuUser['mail_pro']??''))?></small></div></div><a href="profil.php"><i class="fa-regular fa-user"></i><span>Mon profil<small>Informations et sécurité</small></span></a><a href="commandes_boutique.php"><i class="fa-solid fa-cart-shopping"></i><span>Commandes web<small>Suivre les demandes</small></span></a><div class="connected-user__separator"></div><a class="connected-user__logout" href="deconnex.php"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Se déconnecter</span></a></div></div></div>
+<ul class="navbar-nav navbar-menu-secondary">
+    <li class="nav-item">
+        <a class="nav-link<?= $currentPage === 'archives.php' ? ' active' : '' ?>" href="archives.php"><i class="fa-solid fa-box-archive" aria-hidden="true"></i> Exercices &amp; Archives</a>
+    </li>
+</ul>
 <link rel="stylesheet" href="css/navbar-pro.css">
 <link rel="stylesheet" href="css/smart-select.css">
 <link rel="stylesheet" href="css/modern-ui.css">

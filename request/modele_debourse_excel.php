@@ -1,0 +1,7 @@
+<?php
+declare(strict_types=1);
+require_once dirname(__DIR__).'/auth_check.php';
+header('Content-Type: application/vnd.ms-excel; charset=UTF-8');header('Content-Disposition: attachment; filename="modele_debourse_fidest.xls"');
+function xe(string $value):string{return htmlspecialchars($value,ENT_XML1|ENT_QUOTES,'UTF-8');}
+echo '<?xml version="1.0" encoding="UTF-8"?>';
+?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="Header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#22254B" ss:Pattern="Solid"/></Style><Style ss:ID="Money"><NumberFormat ss:Format="#,##0"/></Style></Styles><Worksheet ss:Name="Déboursé"><Table><Column ss:Width="100"/><Column ss:Width="280"/><Column ss:Width="80"/><Column ss:Width="120"/><Row ss:StyleID="Header"><Cell><Data ss:Type="String">Catégorie</Data></Cell><Cell><Data ss:Type="String">Désignation</Data></Cell><Cell><Data ss:Type="String">Quantité</Data></Cell><Cell><Data ss:Type="String">Prix unitaire</Data></Cell></Row><Row><Cell><Data ss:Type="String">Fourniture</Data></Cell><Cell><Data ss:Type="String">Exemple de matériel</Data></Cell><Cell><Data ss:Type="Number">2</Data></Cell><Cell ss:StyleID="Money"><Data ss:Type="Number">150000</Data></Cell></Row><Row><Cell><Data ss:Type="String">Transport</Data></Cell><Cell><Data ss:Type="String">Livraison sur site</Data></Cell><Cell><Data ss:Type="Number">1</Data></Cell><Cell ss:StyleID="Money"><Data ss:Type="Number">50000</Data></Cell></Row></Table></Worksheet></Workbook>

@@ -46,46 +46,33 @@ function app_database(): PDO
 
 function app_run_migrations(PDO $database): void
 {
-    $database->exec(
-        'CREATE TABLE IF NOT EXISTS app_migrations (' .
-            'migration VARCHAR(255) NOT NULL PRIMARY KEY,' .
-            'applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP' .
-            ') ENGINE=InnoDB DEFAULT CHARSET=utf8mb4'
-    );
-
-    $appliedStatement = $database->query('SELECT migration FROM app_migrations');
-    $applied = array_flip($appliedStatement->fetchAll(PDO::FETCH_COLUMN));
-    $migrationFiles = glob(APP_ROOT . '/database/migrations/*.sql') ?: [];
-    sort($migrationFiles, SORT_STRING);
-
-    foreach ($migrationFiles as $migrationFile) {
-        $migration = basename($migrationFile);
-        if (isset($applied[$migration])) {
-            continue;
-        }
-
-        $sql = trim((string) file_get_contents($migrationFile));
-        if ($sql === '') {
-            continue;
-        }
-
-        $statements = preg_split('/;\s*(?:\R|$)/', $sql) ?: [];
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-            if ($statement !== '') {
-                $database->exec($statement);
-            }
-        }
-
-        $migrationStatement = $database->prepare(
-            'INSERT INTO app_migrations (migration) VALUES (:migration)'
-        );
-        $migrationStatement->execute(['migration' => $migration]);
-    }
+    (new App\Infrastructure\Database\Migrator($database, APP_ROOT . '/database/migrations'))->run();
 }
 
 function app_branding(): App\Infrastructure\Branding\Branding
 {
     static $branding;
     return $branding ??= new App\Infrastructure\Branding\Branding();
+}
+
+function app_container(): App\Infrastructure\Container\Container
+{
+    static $container;
+    if ($container instanceof App\Infrastructure\Container\Container) { return $container; }
+    $container = new App\Infrastructure\Container\Container();
+    $container->singleton(PDO::class, static fn() => app_database());
+    $container->singleton(App\Infrastructure\Branding\Branding::class, static fn() => app_branding());
+    $container->singleton(App\Infrastructure\View\ViewRenderer::class, static fn() => new App\Infrastructure\View\ViewRenderer(APP_ROOT . '/views'));
+    return $container;
+}
+
+function app_router(): App\Http\Router
+{
+    static $router;
+    if ($router instanceof App\Http\Router) { return $router; }
+    $scriptDirectory = rtrim(str_replace('\\', '/', dirname((string) ($_SERVER['SCRIPT_NAME'] ?? ''))), '/');
+    $router = new App\Http\Router(app_container(), $scriptDirectory === '/' ? '' : $scriptDirectory);
+    $register = require APP_ROOT . '/routes/web.php';
+    $register($router);
+    return $router;
 }
