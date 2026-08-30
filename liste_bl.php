@@ -13,7 +13,7 @@ $signedTotal = count($signedItems);
 
 // Fetch devis list to compute unsigned
 $pdo = (new Database())->getConnection();
-$stmt = $pdo->query("SELECT d.id, d.numero_devis, d.date_emission, c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON d.client_id = c.id_client ORDER BY d.id DESC");
+$stmt = $pdo->query("SELECT d.id, d.numero_devis, d.date_emission, c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON d.client_id = c.id_client WHERE d.archived_at IS NULL ORDER BY d.id DESC");
 $allDevis = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
 $signedMap = [];

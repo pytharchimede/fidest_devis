@@ -32,6 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($error === '' && ($referenceClient === '' || $dateCommande === '' || $dateReception === '')) {
         $error = 'Le numéro du bon client et les dates sont obligatoires.';
     }
+    $selectedQuoteId = (int) ($_POST['devis_id'] ?? 0);
+    if ($error === '' && $selectedQuoteId <= 0) $error = 'Sélectionnez obligatoirement le devis validé à l’origine du bon.';
+    if ($error === '') {
+        $eligible = $pdo->prepare("SELECT client_id FROM devis WHERE id=:id AND masque=0 AND (validation_generale=1 OR statut_devis='valide')");
+        $eligible->execute(['id'=>$selectedQuoteId]); $eligibleQuote=$eligible->fetch();
+        if (!$eligibleQuote) $error='Le bon de commande ne peut être rattaché qu’à un devis validé.';
+        else $_POST['client_id']=(int)$eligibleQuote['client_id'];
+    }
     if (!in_array($status, $allowedStatuses, true)) {
         $status = 'recu';
     }
@@ -122,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $clients = $pdo->query('SELECT id_client,nom_client,code_client FROM client ORDER BY nom_client')->fetchAll();
-$quotes = $pdo->query('SELECT d.id,d.numero_devis,c.nom_client FROM devis d LEFT JOIN client c ON c.id_client=d.client_id WHERE d.masque = 0 ORDER BY d.id DESC LIMIT 300')->fetchAll();
+$quotes = $pdo->query("SELECT d.id,d.numero_devis,c.nom_client FROM devis d LEFT JOIN client c ON c.id_client=d.client_id WHERE d.masque=0 AND d.archived_at IS NULL AND (d.validation_generale=1 OR d.statut_devis='valide') ORDER BY d.id DESC LIMIT 300")->fetchAll();
 $orders = (new PurchaseOrderRepository($pdo))->search($_GET);
 $statusLabels = ['recu' => 'Reçu', 'traitement' => 'En traitement', 'execute' => 'Exécuté', 'annule' => 'Annulé'];
 $exportQuery = http_build_query(array_filter([
@@ -200,9 +208,5 @@ $exportQuery = http_build_query(array_filter([
 </main>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script src="js/smart-select.js"></script>
-<script>
-const documentInput=document.getElementById('document');
-documentInput.addEventListener('change',()=>{const file=documentInput.files[0];if(!file)return;document.getElementById('uploadTitle').textContent=file.name;document.getElementById('uploadHelp').textContent=(file.size/1024/1024).toFixed(2)+' Mo · document prêt';document.getElementById('uploadZone').classList.add('has-file')});
-</script>
 </body>
 </html>

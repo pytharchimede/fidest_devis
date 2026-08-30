@@ -12,7 +12,7 @@ class Devis
     public function validerCommerciale($devisId)
     {
         // Préparer la requête pour mettre à jour le champ `validation_commerciale` à 1
-        $sql = "UPDATE devis SET validation_commerciale = 1 WHERE id = :devisId";
+        $sql = "UPDATE devis SET validation_commerciale = 1, statut_devis = 'en_validation' WHERE id = :devisId";
 
         // Préparer l'exécution de la requête
         $stmt = $this->pdo->prepare($sql);
@@ -33,7 +33,7 @@ class Devis
     public function validerGenerale($devisId)
     {
         // Préparer la requête pour mettre à jour le champ `validation_commerciale` à 1
-        $sql = "UPDATE devis SET validation_generale = 1 WHERE id = :devisId";
+        $sql = "UPDATE devis SET validation_generale = 1, statut_devis = 'valide' WHERE id = :devisId";
 
         // Préparer l'exécution de la requête
         $stmt = $this->pdo->prepare($sql);

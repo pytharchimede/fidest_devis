@@ -45,12 +45,12 @@ $devisId = (int) ($_GET['devisId'] ?? 0);
 $database = app_database();
 $details = null;
 if ($devisId > 0) {
-    $statement = $database->prepare('SELECT d.id,d.numero_devis,d.date_emission,d.date_expiration,d.total_ttc,d.destine_a,c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON c.id_client=d.client_id WHERE d.id=:id');
+    $statement = $database->prepare('SELECT d.id,d.numero_devis,d.date_emission,d.date_expiration,d.total_ttc,d.destine_a,c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON c.id_client=d.client_id WHERE d.id=:id AND d.archived_at IS NULL');
     $statement->execute(['id'=>$devisId]);
     $details = $statement->fetch() ?: null;
     if (!$details) { http_response_code(404); exit('Devis introuvable.'); }
 }
-$devisList = $devisId > 0 ? [] : $database->query('SELECT d.id,d.numero_devis,c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON c.id_client=d.client_id WHERE d.masque=0 ORDER BY d.id DESC LIMIT 500')->fetchAll();
+$devisList = $devisId > 0 ? [] : $database->query('SELECT d.id,d.numero_devis,c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON c.id_client=d.client_id WHERE d.masque=0 AND d.archived_at IS NULL ORDER BY d.id DESC LIMIT 500')->fetchAll();
 $currentDocument = null;
 foreach (loadRegistry($registryPath)['items'] as $item) if ((int)$item['devisId'] === $devisId) $currentDocument = $item;
 $errors = ['missing'=>'Sélectionnez un document avant de continuer.','size'=>'Le fichier dépasse la limite de 10 Mo.','format'=>'Format refusé. Utilisez un PDF, JPG ou PNG.','upload'=>'Le transfert a échoué. Veuillez réessayer.'];

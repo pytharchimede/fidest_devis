@@ -21,7 +21,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     $destineA = isset($_POST['destineA']) ? $_POST['destineA'] : '';
 
-    $delaiLivraison = isset($_POST['delaiLivraison']) ? $_POST['delaiLivraison'] : '';
+    $delaiLivraisonJours = filter_var($_POST['delaiLivraison'] ?? null, FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+    if ($delaiLivraisonJours === false) { http_response_code(422); exit('Le délai de livraison doit être une durée positive en jours.'); }
+    $delaiLivraison = $delaiLivraisonJours . ' jours';
 
     $dateEmission = isset($_POST['dateEmission']) ? $_POST['dateEmission'] : '';
 
@@ -51,7 +53,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     }
 
-    $offreId = isset($_POST['offre_id']) ? $_POST['offre_id'] : null;
+    $originalOffer = $con->prepare('SELECT offre_id FROM devis WHERE id=?');$originalOffer->execute([$devisId]);
+    $offreId = (int)$originalOffer->fetchColumn();
 
     $tvaFacturable = isset($_POST['tvaFacturable']) ? $_POST['tvaFacturable'] : '0';
 
@@ -107,11 +110,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Mise à jour du devis
 
-    $stmt = $con->prepare("UPDATE devis SET emis_par = ?, destine_a = ?, delai_livraison = ?, date_emission = ?, date_expiration = ?, date_facturation_prevue = ?, termes_conditions = ?, pied_de_page = ?, total_ht = ?, total_ttc = ?, logo = ?, client_id = ?, offre_id = ?, tva_facturable = ?, publier_devis = ?, tva = ?, correspondant = ? WHERE id = ?");
+    $stmt = $con->prepare("UPDATE devis SET emis_par = ?, destine_a = ?, delai_livraison = ?, delai_livraison_jours = ?, date_emission = ?, date_expiration = ?, date_facturation_prevue = ?, termes_conditions = ?, pied_de_page = ?, total_ht = ?, total_ttc = ?, logo = ?, client_id = ?, offre_id = ?, tva_facturable = ?, publier_devis = ?, tva = ?, correspondant = ? WHERE id = ?");
 
 
 
-    $stmt->execute([$emisPar, $destineA, $delaiLivraison, $dateEmission, $dateExpiration, $dateFacturation, $termesConditions, $piedDePage, $totalHT, $totalTTC, $logo, $clientId, $offreId, $tvaFacturable, $publierDevis, $tva, $correspondant, $devisId]);
+    $stmt->execute([$emisPar, $destineA, $delaiLivraison, $delaiLivraisonJours, $dateEmission, $dateExpiration, $dateFacturation, $termesConditions, $piedDePage, $totalHT, $totalTTC, $logo, $clientId, $offreId, $tvaFacturable, $publierDevis, $tva, $correspondant, $devisId]);
 
 
 

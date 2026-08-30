@@ -102,7 +102,7 @@ $footerValue = trim((string) ($devis['pied_de_page'] ?? '')) ?: app_branding()->
                 </div>
                 <div class="col-md-6">
                     <label for="offreSelect" class="form-label">Sélectionner l'offre</label>
-                    <select class="form-control" id="offreSelect" name="offre_id" data-smart-select data-placeholder="Rechercher un produit ou une offre…">
+                    <select class="form-control" id="offreSelect" name="offre_id" data-smart-select data-smart-readonly data-placeholder="Appel d’offre d’origine">
                         <option value="" disabled selected>Choisissez une offre</option>
                         <?php while ($offre = $offres->fetch(PDO::FETCH_ASSOC)): ?>
                             <option value="<?php echo $offre['id_offre']; ?>" <?php if ($devis['offre_id'] == $offre['id_offre']) {
@@ -113,10 +113,11 @@ $footerValue = trim((string) ($devis['pied_de_page'] ?? '')) ?: app_branding()->
                         <?php endwhile; ?>
                     </select>
                     <a id="editSelectedOffer" class="btn btn-sm btn-link px-0" href="modifier_offre.php?id=<?= (int) $devis['offre_id'] ?>"><i class="fas fa-pen"></i> Modifier l’offre sélectionnée</a>
+                    <div class="form-text">Ce rattachement est définitif afin de garantir l’unicité appel d’offre → devis.</div>
                 </div>
                 <div class="col-md-8">
-                    <label for="delaiLivraison" class="form-label">Délai de livraison</label>
-                    <input type="text" class="form-control" id="delaiLivraison" name="delaiLivraison" placeholder="Délai de livraison" value="<?= $devis['delai_livraison'] ?>">
+                    <label for="delaiLivraison" class="form-label">Délai de livraison (jours)</label>
+                    <div class="input-group"><input type="number" min="1" step="1" class="form-control" id="delaiLivraison" name="delaiLivraison" value="<?= (int)($devis['delai_livraison_jours'] ?? 0) ?>" required><span class="input-group-text">jours</span></div>
                 </div>
                 <div class="col-md-4">
                     <label for="correspondant" class="form-label">Correspondant</label>

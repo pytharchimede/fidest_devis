@@ -11,15 +11,17 @@ try {
 }
 $menuItems = [
     ['dashboard.php', 'Accueil'],
+    ['liste_offre.php', 'Appels d’Offre'],
     ['generer_devis.php', 'Nouveau devis'],
     ['liste_devis.php', 'Devis'],
-    ['liste_bl.php', 'Livraisons'],
     ['bons_commande.php', 'Commandes'],
+    ['suivi_affaires.php', 'Suivi des affaires'],
+    ['archives.php', 'Exercices & Archives'],
+    ['liste_bl.php', 'BL signés'],
+    ['liste_facture.php', 'Factures & Encaissements'],
     ['commandes_boutique.php', 'Commandes web'],
     ['messagerie_boutique.php', 'Messages web'],
-    ['liste_facture.php', 'Factures'],
     ['liste_client.php', 'Clients'],
-    ['liste_offre.php', 'Offres'],
     ['catalogue.php', 'Catalogue'],
     ['catalogue_media.php', 'Médias'],
     ['fiches_produits.php', 'Fiches produits'],
@@ -46,8 +48,13 @@ if ($canManageAnnouncements) {
     </div>
 </div><?php $menuUserName=trim((string)(($menuUser['prenom']??'').' '.($menuUser['nom']??'')));$menuUserPhoto=(string)($menuUser['photo']??'');if($menuUserPhoto==='')$menuUserPhoto='https://www.gravatar.com/avatar/'.md5(strtolower(trim((string)($menuUser['mail_pro']??'')))).'?d=mp&s=120';?><div class="connected-user"><button class="connected-user__trigger" type="button" aria-expanded="false" aria-label="Ouvrir le menu utilisateur"><img src="<?=htmlspecialchars($menuUserPhoto,ENT_QUOTES)?>" alt=""><span><strong><?=htmlspecialchars($menuUserName?:'Utilisateur')?></strong><small><?=htmlspecialchars((string)($menuUser['fonction']?:'Collaborateur FIDEST'))?></small></span><i class="fa-solid fa-chevron-down"></i></button><div class="connected-user__dropdown"><div class="connected-user__identity"><img src="<?=htmlspecialchars($menuUserPhoto,ENT_QUOTES)?>" alt=""><div><strong><?=htmlspecialchars($menuUserName?:'Utilisateur')?></strong><small><?=htmlspecialchars((string)($menuUser['mail_pro']??''))?></small></div></div><a href="profil.php"><i class="fa-regular fa-user"></i><span>Mon profil<small>Informations et sécurité</small></span></a><a href="commandes_boutique.php"><i class="fa-solid fa-cart-shopping"></i><span>Commandes web<small>Suivre les demandes</small></span></a><div class="connected-user__separator"></div><a class="connected-user__logout" href="deconnex.php"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Se déconnecter</span></a></div></div></div>
 <link rel="stylesheet" href="css/navbar-pro.css">
+<link rel="stylesheet" href="css/smart-select.css">
+<link rel="stylesheet" href="css/modern-ui.css">
+<link rel="stylesheet" href="css/data-density.css">
 <link rel="stylesheet" href="css/notifications.css">
 <link rel="stylesheet" href="css/first-use-guide.css">
 <script src="js/notifications.js" defer></script>
 <script src="js/first-use-guide.js" defer></script>
 <script src="js/navbar-pro.js" defer></script>
+<script src="js/smart-select.js" defer></script>
+<script src="js/modern-ui.js" defer></script>

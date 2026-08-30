@@ -19,10 +19,10 @@ final class QuoteRepository
     public function create(array $quote): int
     {
         $statement = $this->database->prepare(
-            'INSERT INTO devis (numero_devis, delai_livraison, date_emission, date_expiration, date_facturation_prevue, emis_par, destine_a,
+            'INSERT INTO devis (numero_devis, delai_livraison, delai_livraison_jours, date_emission, date_expiration, date_facturation_prevue, emis_par, destine_a,
              termes_conditions, pied_de_page, total_ht, total_ttc, logo, client_id, offre_id, tva_facturable,
              publier_devis, tva, correspondant, created_by_user_id, masque, validation_commerciale, validation_generale)
-             VALUES (:number, :delivery_time, :issued_at, :expires_at, :billing_at, :issuer, :recipient, :terms, :footer,
+             VALUES (:number, :delivery_time, :delivery_days, :issued_at, :expires_at, :billing_at, :issuer, :recipient, :terms, :footer,
              :total_excluding_tax, :total_including_tax, :logo, :client_id, :offer_id, :taxable, :published, :tax, :contact,
              :created_by, 0, 0, 0)'
         );
@@ -43,7 +43,7 @@ final class QuoteRepository
     {
         return $this->database->query(
             'SELECT DATE(date_emission) AS date, COUNT(*) AS count FROM devis
-             WHERE masque = 0 GROUP BY DATE(date_emission) ORDER BY DATE(date_emission)'
+             WHERE masque = 0 AND archived_at IS NULL GROUP BY DATE(date_emission) ORDER BY DATE(date_emission)'
         )->fetchAll();
     }
 }
