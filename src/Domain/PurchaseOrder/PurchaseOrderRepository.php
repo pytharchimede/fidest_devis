@@ -14,7 +14,7 @@ final class PurchaseOrderRepository
 
     public function search(array $filters): array
     {
-        $sql = 'SELECT bc.*,c.nom_client,d.numero_devis FROM bons_commande bc LEFT JOIN client c ON c.id_client=bc.client_id LEFT JOIN devis d ON d.id=bc.devis_id WHERE 1=1';
+        $sql = 'SELECT bc.*,c.nom_client,d.numero_devis FROM bons_commande bc LEFT JOIN client c ON c.id_client=bc.client_id LEFT JOIN devis d ON d.id=bc.devis_id WHERE d.archived_at IS NULL';
         $parameters = [];
         $query = trim((string) ($filters['q'] ?? ''));
         if ($query !== '') {

@@ -13,11 +13,11 @@ final class BillingRepository
             SUM(date_facturation_prevue BETWEEN CURRENT_DATE AND DATE_ADD(CURRENT_DATE,INTERVAL 7 DAY)) upcoming,
             SUM(date_facturation_prevue < CURRENT_DATE) overdue,
             COALESCE(SUM(CASE WHEN date_facturation_prevue IS NOT NULL THEN total_ttc ELSE 0 END),0) scheduled_amount
-            FROM devis WHERE masque=0")->fetch() ?: [];
+            FROM devis WHERE masque=0 AND archived_at IS NULL")->fetch() ?: [];
     }
     public function search(array $filters): array
     {
-        $where=['d.masque=0'];$params=[];
+        $where=['d.masque=0','d.archived_at IS NULL'];$params=[];
         $q=trim((string)($filters['q']??''));if($q!==''){$where[]='(d.numero_devis LIKE :q_number OR c.nom_client LIKE :q_client OR d.destine_a LIKE :q_recipient)';$params['q_number']=$params['q_client']=$params['q_recipient']='%'.$q.'%';}
         $status=(string)($filters['status']??'');
         if($status==='unscheduled')$where[]='d.date_facturation_prevue IS NULL';

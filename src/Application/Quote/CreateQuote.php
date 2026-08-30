@@ -18,8 +18,12 @@ final class CreateQuote
     {
         $this->database->beginTransaction();
         try {
+            $reservation = $this->database->prepare('INSERT INTO quote_offer_reservations (offer_id) VALUES (:offer_id)');
+            $reservation->execute(['offer_id' => (int) $quote['offer_id']]);
             $quote['number'] = $this->quotes->nextNumber();
             $quoteId = $this->quotes->create($quote);
+            $this->database->prepare('UPDATE quote_offer_reservations SET quote_id=:quote_id WHERE offer_id=:offer_id')
+                ->execute(['quote_id'=>$quoteId,'offer_id'=>(int)$quote['offer_id']]);
             foreach ($lines as $line) {
                 $this->quotes->addLine($quoteId, $line);
             }

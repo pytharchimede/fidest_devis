@@ -24,8 +24,14 @@ try {
     $offerId = (int) ($_POST['offre_id'] ?? 0);
     $issuedAt = trim((string) ($_POST['dateEmission'] ?? ''));
     $expiresAt = trim((string) ($_POST['dateExpiration'] ?? ''));
-    if ($clientId <= 0 || $offerId <= 0 || $issuedAt === '' || $expiresAt === '') {
+    $deliveryDays = filter_var($_POST['delaiLivraison'] ?? null, FILTER_VALIDATE_INT, ['options'=>['min_range'=>1]]);
+    if ($clientId <= 0 || $offerId <= 0 || $issuedAt === '' || $expiresAt === '' || $deliveryDays === false) {
         throw new InvalidArgumentException('Sélectionnez un client, une offre et une date d’expiration.');
+    }
+    $offerStatement = $database->prepare('SELECT client_id,fichier_ao FROM offre WHERE id_offre=:id AND archived_at IS NULL');
+    $offerStatement->execute(['id'=>$offerId]); $sourceOffer = $offerStatement->fetch();
+    if (!$sourceOffer || empty($sourceOffer['fichier_ao']) || (int)$sourceOffer['client_id'] !== $clientId) {
+        throw new InvalidArgumentException('Le devis doit dépendre d’un appel d’offre documenté et reprendre son client.');
     }
     $clientStatement = $database->prepare('SELECT nom_client, localisation_client, commune_client, bp_client, pays_client FROM client WHERE id_client = :id');
     $clientStatement->execute(['id' => $clientId]);
@@ -40,7 +46,8 @@ try {
 
     $quote = [
         'number' => '',
-        'delivery_time' => trim((string) ($_POST['delaiLivraison'] ?? '')),
+        'delivery_time' => $deliveryDays . ' jours',
+        'delivery_days' => $deliveryDays,
         'issued_at' => $issuedAt,
         'expires_at' => $expiresAt,
         'billing_at' => (string) ($_POST['dateFacturation'] ?? '') ?: null,
@@ -86,6 +93,13 @@ try {
     http_response_code(422);
     header('Content-Type: application/json; charset=utf-8');
     echo json_encode(['success' => false, 'message' => $exception->getMessage()], JSON_THROW_ON_ERROR);
+} catch (PDOException $exception) {
+    if ((string)$exception->getCode() === '23000') {
+        http_response_code(409); header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(['success'=>false,'message'=>'Cet appel d’offre est déjà réservé par un devis. Un appel d’offre ne peut produire qu’un seul devis.'], JSON_THROW_ON_ERROR); exit;
+    }
+    error_log($exception->__toString()); http_response_code(500); header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success'=>false,'message'=>'Impossible d’enregistrer le devis.'], JSON_THROW_ON_ERROR);
 } catch (Throwable $exception) {
     error_log($exception->__toString());
     http_response_code(500);

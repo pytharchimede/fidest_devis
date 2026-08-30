@@ -16,7 +16,7 @@ final class NotificationRepository
             d.date_facturation_prevue, DATEDIFF(d.date_facturation_prevue, CURRENT_DATE) AS days_left,
             n.read_at FROM devis d
             LEFT JOIN notification_user n ON n.user_id=:user_id AND n.notification_key=CONCAT('billing:', d.id, ':', d.date_facturation_prevue)
-            WHERE d.masque=0 AND d.date_facturation_prevue IS NOT NULL
+            WHERE d.masque=0 AND d.archived_at IS NULL AND d.date_facturation_prevue IS NOT NULL
               AND d.date_facturation_prevue <= DATE_ADD(CURRENT_DATE, INTERVAL 7 DAY)
               AND n.dismissed_at IS NULL ORDER BY d.date_facturation_prevue, d.id DESC LIMIT 30");
         $statement->execute(['user_id' => $userId]);

@@ -4,9 +4,11 @@ require_once __DIR__ . '/auth_check.php';
 require_once __DIR__ . '/bootstrap.php';
 require_once 'model/Database.php';
 require_once 'model/User.php';
+use App\Application\User\SignatureUploader;
 
 $pdo = Database::getConnection();
 $userModel = new User($pdo);
+$_SESSION['profile_csrf'] ??= bin2hex(random_bytes(24));
 
 // Vérifier si l'utilisateur est connecté et récupérer ses données
 $userId = $_SESSION['user_id'];
@@ -23,6 +25,7 @@ if (!$user) {
 
 // Traitement du formulaire de mise à jour du profil
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!hash_equals((string)$_SESSION['profile_csrf'], (string)($_POST['csrf'] ?? ''))) $error = 'Votre session a expiré.';
     $nom = $_POST['nom'];
     $prenom = $_POST['prenom'];
     $mail = trim((string) ($_POST['mail_pro'] ?? $user['mail_pro']));
@@ -46,8 +49,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Mise à jour des données de l'utilisateur
+    $signaturePath=(string)($user['signature']??'');$signatureMime=(string)($user['signature_mime']??'');
+    if (!isset($error)) {try{$uploaded=(new SignatureUploader(__DIR__))->store((int)$userId,$_FILES['signature_file']??[],trim((string)($_POST['signature_data']??'')));if($uploaded){$signaturePath=$uploaded['path'];$signatureMime=$uploaded['mime'];}}catch(Throwable $exception){$error=$exception->getMessage();}}
     if (!isset($error)) {
-        $stmt = $pdo->prepare("UPDATE user_devis SET nom=:nom, prenom=:prenom, mail_pro=:mail, telephone=:telephone, fonction=:fonction, departement=:departement, adresse=:adresse, bio=:bio, password=:password, photo=:photo WHERE id=:id");
+        $stmt = $pdo->prepare("UPDATE user_devis SET nom=:nom, prenom=:prenom, mail_pro=:mail, telephone=:telephone, fonction=:fonction, departement=:departement, adresse=:adresse, bio=:bio, password=:password, photo=:photo,signature=:signature,signature_mime=:signature_mime,signature_updated_at=IF(:signature_changed=1,NOW(),signature_updated_at) WHERE id=:id");
         $stmt->execute([
             'nom' => $nom,
             'prenom' => $prenom,
@@ -59,6 +64,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'bio' => $bio,
             'password' => $hashedPassword,
             'photo' => $targetFile,
+            'signature' => $signaturePath,
+            'signature_mime' => $signatureMime?:null,
+            'signature_changed' => $signaturePath !== (string)($user['signature']??'') ? 1 : 0,
             'id' => $userId
         ]);
 
@@ -192,6 +200,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             width: 100%;
             bottom: 0;
         }
+        .signature-panel{margin:22px 0;padding:18px;background:#f7f7fa;border:1px solid #e3e4ec;border-radius:16px}.signature-options{display:grid;grid-template-columns:1fr 1fr;gap:14px}.signature-pad{width:100%;height:155px;touch-action:none;background:#fff;border:2px dashed #b8bac9;border-radius:12px;cursor:crosshair}.signature-current{display:grid;height:155px;place-items:center;padding:12px;background:#fff;border:1px solid #e3e4ec;border-radius:12px}.signature-current img{max-width:100%;max-height:105px;object-fit:contain}.signature-actions{display:flex;gap:8px;margin-top:9px}@media(max-width:700px){.signature-options{grid-template-columns:1fr}}
     </style>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/modules.css">
@@ -220,6 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
             <div class="card-body">
                 <form action="profil.php" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf" value="<?=htmlspecialchars($_SESSION['profile_csrf'],ENT_QUOTES)?>">
                     <?php if (isset($error)): ?><div class="alert alert-danger"><?= htmlspecialchars($error) ?></div><?php endif; ?>
                     <div class="row">
                         <div class="col-md-4 text-center photo-preview">
@@ -260,6 +270,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <div class="col-12 mb-3"><label class="form-label">Adresse professionnelle</label><input class="form-control" name="adresse" value="<?= htmlspecialchars((string)($user['adresse'] ?? '')) ?>"></div>
                                 <div class="col-12 mb-3"><label class="form-label">Présentation professionnelle</label><textarea class="form-control" name="bio" rows="4"><?= htmlspecialchars((string)($user['bio'] ?? '')) ?></textarea></div>
                             </div>
+                            <div class="profile-section-heading"><span><i class="fas fa-signature"></i></span><div><h3>Signature professionnelle</h3><p>Elle sera apposée uniquement sur les documents que vous validez personnellement.</p></div></div>
+                            <section class="signature-panel"><div class="signature-options"><div><label class="form-label">Signer directement</label><canvas class="signature-pad" id="signaturePad"></canvas><input type="hidden" name="signature_data" id="signatureData"><div class="signature-actions"><button class="btn btn-sm btn-outline-secondary" type="button" id="clearSignature"><i class="fas fa-eraser"></i> Effacer</button><span class="small text-muted align-self-center" id="signatureStatus">Dessinez avec la souris ou le doigt.</span></div></div><div><label class="form-label">Signature actuelle ou importée</label><div class="signature-current"><img id="signaturePreview" src="<?=!empty($user['signature'])?htmlspecialchars($user['signature'],ENT_QUOTES):'img/logo_fidest.png'?>" alt="Signature actuelle"></div><label class="profile-photo-button mt-2" for="signatureFile"><i class="fas fa-upload"></i> Importer une image</label><input hidden id="signatureFile" type="file" name="signature_file" accept="image/png,image/jpeg,image/webp"><small class="d-block mt-2 text-muted">PNG transparent recommandé · 2 Mo maximum.</small></div></div></section>
                             <div class="profile-section-heading profile-security-heading"><span><i class="fas fa-shield-alt" aria-hidden="true"></i></span>
                                 <div>
                                     <h3>Sécurité du compte</h3>
@@ -309,6 +321,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         document.getElementById('photoInput').addEventListener('change', updatePhotoPreview);
+        const signaturePad=document.getElementById('signaturePad'),signatureData=document.getElementById('signatureData'),signatureStatus=document.getElementById('signatureStatus'),signatureFile=document.getElementById('signatureFile'),signaturePreview=document.getElementById('signaturePreview');
+        const signatureContext=signaturePad.getContext('2d');let signing=false,hasSignatureStroke=false;
+        function sizeSignaturePad(){const ratio=Math.max(window.devicePixelRatio||1,1),box=signaturePad.getBoundingClientRect();signaturePad.width=Math.round(box.width*ratio);signaturePad.height=Math.round(box.height*ratio);signatureContext.setTransform(ratio,0,0,ratio,0,0);signatureContext.lineWidth=2.2;signatureContext.lineCap='round';signatureContext.lineJoin='round';signatureContext.strokeStyle='#172044';}
+        function signaturePoint(event){const box=signaturePad.getBoundingClientRect(),point=event.touches?.[0]||event;return{x:point.clientX-box.left,y:point.clientY-box.top};}
+        function startSignature(event){event.preventDefault();signing=true;const point=signaturePoint(event);signatureContext.beginPath();signatureContext.moveTo(point.x,point.y);}
+        function moveSignature(event){if(!signing)return;event.preventDefault();const point=signaturePoint(event);signatureContext.lineTo(point.x,point.y);signatureContext.stroke();hasSignatureStroke=true;}
+        function finishSignature(){if(!signing)return;signing=false;if(hasSignatureStroke){signatureData.value=signaturePad.toDataURL('image/png');signatureStatus.textContent='Signature dessinée prête à être enregistrée.';signatureStatus.classList.add('text-success');signatureFile.value='';}}
+        sizeSignaturePad();signaturePad.addEventListener('pointerdown',startSignature);signaturePad.addEventListener('pointermove',moveSignature);window.addEventListener('pointerup',finishSignature);
+        document.getElementById('clearSignature').addEventListener('click',()=>{signatureContext.clearRect(0,0,signaturePad.width,signaturePad.height);signatureData.value='';hasSignatureStroke=false;signatureStatus.textContent='Zone effacée.';signatureStatus.classList.remove('text-success')});
+        signatureFile.addEventListener('change',()=>{const file=signatureFile.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{signaturePreview.src=reader.result;signatureData.value='';signatureStatus.textContent='Image de signature prête à être importée.';signatureStatus.classList.add('text-success')};reader.readAsDataURL(file)});
     </script>
 </body>
 

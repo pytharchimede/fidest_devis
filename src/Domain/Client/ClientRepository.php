@@ -17,8 +17,8 @@ final class ClientRepository
     public function create(array $client): int
     {
         $statement = $this->database->prepare(
-            'INSERT INTO client (code_client, nom_client, localisation_client, commune_client, bp_client, pays_client, date_creat_client)
-             VALUES (:code, :name, :location, :city, :postal_box, :country, :created_at)'
+            'INSERT INTO client (code_client,nom_client,localisation_client,commune_client,bp_client,pays_client,date_creat_client,logo_client)
+             VALUES (:code,:name,:location,:city,:postal_box,:country,:created_at,:logo)'
         );
         $statement->execute($client);
 
@@ -36,7 +36,7 @@ final class ClientRepository
     {
         $statement = $this->database->prepare('UPDATE client SET code_client=:code, nom_client=:name,
             localisation_client=:location, commune_client=:city, bp_client=:postal_box,
-            pays_client=:country, date_creat_client=:created_at WHERE id_client=:id');
+            pays_client=:country,date_creat_client=:created_at,logo_client=:logo WHERE id_client=:id');
         $statement->execute($client + ['id' => $id]);
     }
 }

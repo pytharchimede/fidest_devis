@@ -125,6 +125,9 @@ $whereSql = $where ? ('WHERE ' . implode(' AND ', $where)) : '';
 $sql = "
 SELECT 
   TRIM(ld.designation) AS designation,
+  (SELECT p.id_produit FROM produit p WHERE p.designation = TRIM(ld.designation) LIMIT 1) AS product_id,
+  (SELECT pi.filename FROM produit p JOIN produit_image pi ON pi.produit_id = p.id_produit WHERE p.designation = TRIM(ld.designation) ORDER BY pi.position ASC, pi.date_upload DESC LIMIT 1) AS image,
+  (SELECT COUNT(*) FROM produit p JOIN produit_image pi ON pi.produit_id = p.id_produit WHERE p.designation = TRIM(ld.designation)) AS image_count,
   COUNT(*) AS occurences,
   MIN(ld.prix) AS prix_min,
   MAX(ld.prix) AS prix_max,
@@ -147,6 +150,15 @@ foreach ($params as $k => $v) {
 }
 $stmt->execute();
 $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$mediaStats = $pdo->query("SELECT COUNT(*) total_products,SUM(EXISTS(SELECT 1 FROM produit_image pi WHERE pi.produit_id=p.id_produit)) products_with_images,SUM(NOT EXISTS(SELECT 1 FROM produit_image pi WHERE pi.produit_id=p.id_produit)) products_without_images,(SELECT COUNT(*) FROM produit_image) total_images FROM produit p")->fetch(PDO::FETCH_ASSOC) ?: [];
+$totalProducts = (int)($mediaStats['total_products'] ?? 0);
+$productsWithImages = (int)($mediaStats['products_with_images'] ?? 0);
+$productsWithoutImages = (int)($mediaStats['products_without_images'] ?? 0);
+$totalImages = (int)($mediaStats['total_images'] ?? 0);
+$coverage = $totalProducts > 0 ? (int)round($productsWithImages * 100 / $totalProducts) : 0;
+$filteredWithImages = count(array_filter($items, static fn(array $item): bool => (int)($item['image_count'] ?? 0) > 0));
+$filteredWithoutImages = count($items) - $filteredWithImages;
 
 // Palette et styles (respect charte actuelle: blanc, bleu, gris fin)
 ?>
@@ -225,6 +237,20 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background: rgba(13, 110, 253, 0.12);
             color: var(--brand-primary);
         }
+
+        .catalogue-media-stats { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:24px; }
+        .catalogue-media-stat { display:flex; gap:12px; align-items:center; padding:16px 18px; background:#fff; border:1px solid var(--border-soft); border-radius:15px; box-shadow:0 8px 24px rgba(34,37,75,.06); }
+        .catalogue-media-stat i { display:grid; width:42px; height:42px; flex:0 0 42px; place-items:center; color:var(--brand-primary); background:#eeeef5; border-radius:12px; }
+        .catalogue-media-stat strong,.catalogue-media-stat small { display:block; }
+        .catalogue-media-stat strong { color:var(--brand-primary); font-size:1.25rem; }
+        .catalogue-media-stat small { color:var(--text-muted); font-size:.69rem; }
+        .catalogue-product-head { display:grid; grid-template-columns:72px minmax(0,1fr) auto; gap:12px; align-items:start; }
+        .catalogue-product-image { display:grid; width:72px; height:72px; overflow:hidden; place-items:center; color:#a0a2af; background:#f0f1f5; border-radius:12px; text-decoration:none; }
+        .catalogue-product-image img { width:100%; height:100%; object-fit:cover; }
+        .catalogue-product-image i { font-size:1.3rem; }
+        .catalogue-image-count { display:inline-block; margin-top:5px; color:var(--text-muted); font-size:.64rem; }
+        @media(max-width:900px){.catalogue-media-stats{grid-template-columns:1fr 1fr}}
+        @media(max-width:520px){.catalogue-media-stats{grid-template-columns:1fr}.catalogue-product-head{grid-template-columns:62px minmax(0,1fr)}.catalogue-product-image{width:62px;height:62px}.catalogue-product-head .price-chip{grid-column:1/-1;width:max-content}}
     </style>
     <link rel="stylesheet" href="css/modules.css">
     <link rel="stylesheet" href="css/smart-select.css">
@@ -243,6 +269,13 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
+
+        <section class="catalogue-media-stats" aria-label="Couverture des images produits">
+            <div class="catalogue-media-stat"><i class="fa-solid fa-boxes-stacked"></i><div><strong><?= $totalProducts ?></strong><small>Produits au catalogue</small></div></div>
+            <div class="catalogue-media-stat"><i class="fa-solid fa-image"></i><div><strong><?= $productsWithImages ?></strong><small>Produits avec image</small></div></div>
+            <div class="catalogue-media-stat"><i class="fa-regular fa-image"></i><div><strong><?= $productsWithoutImages ?></strong><small>Produits sans image</small></div></div>
+            <div class="catalogue-media-stat"><i class="fa-solid fa-chart-pie"></i><div><strong><?= $coverage ?>%</strong><small>Couverture · <?= $totalImages ?> image(s)</small></div></div>
+        </section>
 
         <div class="card search-card p-3 mb-4">
             <form method="post" class="mb-3 d-flex justify-content-end">
@@ -320,7 +353,7 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <div class="d-flex justify-content-between align-items-center mb-2">
-            <div class="text-muted"><?= count($items) ?> produit(s) trouvés</div>
+            <div class="text-muted"><?= count($items) ?> produit(s) trouvé(s) · <strong><?= $filteredWithImages ?></strong> avec image · <strong><?= $filteredWithoutImages ?></strong> sans image</div>
             <div class="text-muted">Données issues des lignes de devis</div>
         </div>
 
@@ -333,13 +366,20 @@ $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 $maxP = (float)($it['prix_max'] ?? 0);
                 $avgP = (float)($it['prix_moyen'] ?? 0);
                 $lastP = (float)($it['dernier_prix'] ?? 0);
+                $productId = (int)($it['product_id'] ?? 0);
+                $image = (string)($it['image'] ?? '');
+                $imageCount = (int)($it['image_count'] ?? 0);
                 ?>
                 <div class="col-xl-4 col-lg-6">
                     <div class="product-card p-3 h-100">
-                        <div class="d-flex align-items-start justify-content-between">
+                        <div class="catalogue-product-head">
+                            <a class="catalogue-product-image" href="<?= $productId > 0 ? 'catalogue_media.php#pid-'.$productId : '#' ?>" title="<?= $image ? 'Voir les images du produit' : 'Ajouter une image' ?>">
+                                <?php if ($image): ?><img src="photo/produits/<?= h($image) ?>" alt="<?= h($designation) ?>" loading="lazy"><?php else: ?><i class="fa-solid fa-camera"></i><?php endif; ?>
+                            </a>
                             <div>
                                 <div class="fw-semibold mb-1"><?= h($designation) ?></div>
                                 <span class="badge badge-occ">Observé <?= h((string)$occ) ?> fois</span>
+                                <span class="catalogue-image-count"><i class="fa-regular fa-images me-1"></i><?= $imageCount > 0 ? $imageCount.' image(s)' : 'Aucune image' ?></span>
                             </div>
                             <div class="price-chip">
                                 <i class="fa-solid fa-money-bill-wave me-2"></i><?= number_format($lastP, 0, '.', ' ') ?> FCFA

@@ -1,0 +1,1 @@
+<?php declare(strict_types=1);require_once dirname(__DIR__).'/bootstrap.php';try{app_router()->dispatch(App\Http\Request::capture())->send();}catch(Throwable $error){App\Http\Response::html('<h1>Erreur</h1><p>'.htmlspecialchars($error->getMessage(),ENT_QUOTES,'UTF-8').'</p>',500)->send();}

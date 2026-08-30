@@ -406,6 +406,8 @@
                     $awaitingGeneral = !empty($de['validation_commerciale']) && empty($de['validation_generale']);
                     $statusClass = $isValidated ? 'validated' : ($awaitingGeneral ? 'general' : 'commercial');
                     $statusLabel = $isValidated ? 'Validé' : ($awaitingGeneral ? 'Validation DG' : 'Validation commerciale');
+                    if (($de['statut_devis'] ?? '') === 'rejete') { $statusClass='commercial'; $statusLabel='Rejeté'; }
+                    elseif (($de['statut_devis'] ?? '') === 'en_attente' && !$isValidated) $statusLabel='En attente';
                 ?>
                 <article class="card quote-card">
                     <div class="card-header">
@@ -437,13 +439,16 @@
                         <a class="btn-delete" href="request/masquer_devis.php?devisId=<?= $de['id'] ?>" onclick="return confirm('Mettre ce devis à la corbeille ?')"><i class="fas fa-trash"></i> Mettre à la corbeille</a>
                     </div>
                     <div class="footer-validation">
-                        <?php if (!$de['validation_commerciale']) : ?>
+                        <?php if (($de['statut_devis'] ?? '') === 'rejete') : ?>
+                            <a class="btn-validate commerciale" href="request/statut_devis.php?devisId=<?= $de['id'] ?>&statut=en_attente"><i class="fas fa-rotate-left"></i> Remettre en attente</a>
+                        <?php elseif (!$de['validation_commerciale']) : ?>
                             <a class="btn-validate commerciale" href="request/valider_commerciale.php?devisId=<?= $de['id'] ?>"><i class="fas fa-check-circle"></i> Valider Commerciale</a>
                         <?php elseif (!$de['validation_generale']) : ?>
                             <a class="btn-validate generale" href="request/valider_generale.php?devisId=<?= $de['id'] ?>"><i class="fas fa-check-circle"></i> Valider Générale</a>
                         <?php else : ?>
                             <span class="validated"><i class="fas fa-check-double"></i> Déjà Validé</span>
                         <?php endif; ?>
+                        <?php if (!$de['validation_generale'] && ($de['statut_devis'] ?? '') !== 'rejete') : ?><a class="btn btn-sm btn-outline-danger" href="request/statut_devis.php?devisId=<?= $de['id'] ?>&statut=rejete" onclick="return confirm('Marquer ce devis comme rejeté ?')">Rejeter</a><?php endif; ?>
                     </div>
                 </article>
             <?php endforeach; ?>

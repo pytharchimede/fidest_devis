@@ -5,6 +5,9 @@ require_once __DIR__ . '/bootstrap.php';
 $database = app_database();
 $clients = (new App\Domain\Client\ClientRepository($database))->all();
 $offres = (new App\Domain\Offer\OfferRepository($database))->all();
+$selectedOfferId = (int)($_GET['offre_id'] ?? 0);
+$selectedClientId = 0;
+foreach ($offres as $candidateOffer) if ((int)$candidateOffer['id_offre'] === $selectedOfferId && empty($candidateOffer['reserved_quote_id'])) $selectedClientId=(int)($candidateOffer['client_id']??0);
 $code_devis = (new App\Domain\Quote\QuoteRepository($database))->nextNumber();
 $issuer = app_branding()->issuerBlock();
 $defaultFooter = app_branding()->footerBlock();
@@ -49,9 +52,9 @@ $defaultFooter = app_branding()->footerBlock();
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-6">
-                <label for="clientSelect" class="form-label">Sélectionner le client</label>
-                <select class="form-control" id="clientSelect" name="client_id" required data-smart-select data-placeholder="Rechercher un client…">
+            <div class="col-md-6 order-md-2">
+                <label for="clientSelect" class="form-label">Client de l’appel d’offre</label>
+                <select class="form-control" id="clientSelect" name="client_id" required data-smart-select data-smart-readonly data-placeholder="Sélectionnez d’abord l’appel d’offre">
                     <option value="" disabled selected>Choisissez un client</option>
                     <?php foreach ($clients as $client): ?>
                         <?php $recipient = implode("\n", array_filter([
@@ -61,30 +64,30 @@ $defaultFooter = app_branding()->footerBlock();
                             $client['bp_client'] ?? '',
                             $client['pays_client'] ?? '',
                         ])); ?>
-                        <option value="<?= (int) $client['id_client'] ?>" data-recipient="<?= htmlspecialchars($recipient, ENT_QUOTES, 'UTF-8') ?>">
+                        <option value="<?= (int) $client['id_client'] ?>" data-recipient="<?= htmlspecialchars($recipient, ENT_QUOTES, 'UTF-8') ?>" <?= $selectedClientId === (int)$client['id_client'] ? 'selected' : '' ?>>
                             <?php echo $client['nom_client']; ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
-                <a id="editSelectedClient" class="btn btn-sm btn-link px-0 disabled" href="#" aria-disabled="true"><i class="fas fa-pen"></i> Modifier le client sélectionné</a>
+                <div class="form-text">Récupéré automatiquement depuis l’appel d’offre sélectionné.</div><a id="editSelectedClient" class="btn btn-sm btn-link px-0 disabled" href="#" aria-disabled="true"><i class="fas fa-pen"></i> Modifier le client sélectionné</a>
             </div>
-            <div class="col-md-6">
-                <label for="offreSelect" class="form-label">Sélectionner l'offre</label>
-                <select class="form-control" id="offreSelect" name="offre_id" required data-smart-select data-placeholder="Rechercher un produit ou une offre…">
+            <div class="col-md-6 order-md-1">
+                <label for="offreSelect" class="form-label">Appel d’offre source</label>
+                <select class="form-control" id="offreSelect" name="offre_id" required data-smart-select data-placeholder="Saisir un numéro ou une référence d’appel d’offre…">
                     <option value="" disabled selected>Choisissez une offre</option>
                     <?php foreach ($offres as $offre): ?>
-                        <option value="<?php echo $offre['id_offre']; ?>">
-                            <?php echo $offre['num_offre'] . ' - ' . $offre['reference_offre']; ?>
+                        <option value="<?php echo $offre['id_offre']; ?>" data-client-id="<?= (int)($offre['client_id'] ?? 0) ?>" <?= empty($offre['client_id']) || empty($offre['fichier_ao']) || !empty($offre['reserved_quote_id']) ? 'disabled' : '' ?> <?= $selectedOfferId === (int)$offre['id_offre'] ? 'selected' : '' ?>>
+                            <?php echo $offre['num_offre'] . ' - ' . $offre['reference_offre'] . (!empty($offre['reserved_quote_id']) ? ' · déjà utilisé' : ''); ?>
                         </option>
                     <?php endforeach; ?>
                 </select>
                 <a id="editSelectedOffer" class="btn btn-sm btn-link px-0 disabled" href="#" aria-disabled="true"><i class="fas fa-pen"></i> Modifier l’offre sélectionnée</a>
             </div>
-            <div class="col-md-8">
-                <label for="delaiLivraison" class="form-label">Date prévue de livraison</label>
-                <input type="date" class="form-control" id="delaiLivraison" name="delaiLivraison" min="<?= gmdate('Y-m-d') ?>">
+            <div class="col-md-4 order-md-3">
+                <label for="delaiLivraison" class="form-label">Délai de livraison (jours)</label>
+                <div class="input-group"><input type="number" class="form-control" id="delaiLivraison" name="delaiLivraison" min="1" step="1" required><span class="input-group-text">jours</span></div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-8 order-md-3">
                 <label for="correspondant" class="form-label">Correspondant</label>
                 <input type="text" class="form-control" id="correspondant" name="correspondant" placeholder="Correspondant">
             </div>
@@ -249,6 +252,7 @@ $defaultFooter = app_branding()->footerBlock();
     <script src="js/function.js"></script>
     <script src="js/quote-pro.js"></script>
     <script src="js/smart-select.js"></script>
+    <script>document.getElementById('offreSelect')?.addEventListener('change',function(){const option=this.options[this.selectedIndex],clientId=option.dataset.clientId,client=document.getElementById('clientSelect');if(clientId&&client){client.value=clientId;client.dispatchEvent(new Event('change',{bubbles:true}));}});</script>
 </body>
 
 </html>

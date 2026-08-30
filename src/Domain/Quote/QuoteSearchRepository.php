@@ -20,7 +20,7 @@ final class QuoteSearchRepository
 
     public function search(array $filters): array
     {
-        $where = ['d.masque = 0'];
+        $where = ['d.masque = 0', 'd.archived_at IS NULL'];
         $params = [];
         $this->addInFilter($where, $params, 'd.client_id', (array) ($filters['clients'] ?? []), 'client');
 

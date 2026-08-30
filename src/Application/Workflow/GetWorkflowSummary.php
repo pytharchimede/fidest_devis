@@ -1,0 +1,2 @@
+<?php declare(strict_types=1); namespace App\Application\Workflow; use App\Domain\Workflow\WorkflowRepository;
+final class GetWorkflowSummary { public function __construct(private readonly WorkflowRepository $repository){} public function execute():array{$this->repository->refreshNeedRequests();$totals=$this->repository->totals();return $totals+['solde'=>(float)$totals['entrees']-(float)$totals['sorties']];} }

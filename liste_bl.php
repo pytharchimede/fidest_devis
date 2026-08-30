@@ -13,7 +13,7 @@ $signedTotal = count($signedItems);
 
 // Fetch devis list to compute unsigned
 $pdo = (new Database())->getConnection();
-$stmt = $pdo->query("SELECT d.id, d.numero_devis, d.date_emission, c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON d.client_id = c.id_client ORDER BY d.id DESC");
+$stmt = $pdo->query("SELECT d.id, d.numero_devis, d.date_emission, c.nom_client AS client_nom FROM devis d LEFT JOIN client c ON d.client_id = c.id_client WHERE d.archived_at IS NULL ORDER BY d.id DESC");
 $allDevis = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
 $signedMap = [];
@@ -88,7 +88,7 @@ $unsignedDevis = array_values(array_filter($allDevis, function ($d) use ($signed
             </div>
             <div class="d-flex align-items-center gap-2 flex-wrap">
                 <span class="badge badge-soft pill">Signés : <?= $signedTotal ?> · À traiter : <?= count($unsignedDevis) ?></span>
-                <a class="btn btn-outline-primary" href="request/export_bl.php" target="_blank"><i class="fas fa-plus me-1"></i> Générer un BL</a>
+                <button class="btn btn-outline-primary" type="button" onclick="document.getElementById('pills-unsigned-tab').click();document.getElementById('pills-unsigned').scrollIntoView({behavior:'smooth',block:'start'})"><i class="fas fa-plus me-1"></i> Choisir un devis</button>
             </div>
         </div>
 
@@ -182,6 +182,7 @@ $unsignedDevis = array_values(array_filter($allDevis, function ($d) use ($signed
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <?php if (isset($_GET['select'])): ?><script>bootstrap.Tab.getOrCreateInstance(document.getElementById('pills-unsigned-tab')).show();document.getElementById('pills-unsigned').scrollIntoView({behavior:'smooth',block:'start'});</script><?php endif; ?>
 </body>
 
 </html>
