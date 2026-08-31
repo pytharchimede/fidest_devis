@@ -14,5 +14,6 @@ return static function(Router $router):void {
     $router->get('/legacy/{page}',[LegacyPageController::class,'show'],'legacy.page');
     $router->get('/api/workflow/summary',[WorkflowController::class,'summary'],'api.workflow.summary');
     $router->get('/feb',[NeedRequestController::class,'index'],'feb.index');
+    $router->get('/feb/validation',[NeedRequestController::class,'validation'],'feb.validation');
     $router->get('/feb/{id}/pdf',[NeedRequestController::class,'pdf'],'feb.pdf');
 };

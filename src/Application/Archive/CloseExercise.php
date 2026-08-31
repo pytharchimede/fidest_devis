@@ -41,6 +41,11 @@ final class CloseExercise
             );
         }
 
+        // Les copies d'archives réutilisent cette borne dans archiveTable().
+        // Sans cette affectation, le paramètre :cutoff est NULL et aucune ligne
+        // n'est copiée alors que les documents source sont ensuite masqués.
+        $this->currentCutoff = $startDate;
+
         $counts = $this->db->prepare(
             'SELECT
                 COUNT(*) AS offers,

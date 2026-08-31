@@ -29,6 +29,8 @@ try {
     $febId = (int) ($_POST['feb_id'] ?? 0);
     $action = trim((string) ($_POST['action'] ?? ''));
     $reason = trim((string) ($_POST['reason'] ?? ''));
+    $signatureSource = trim((string) ($_POST['signature_source'] ?? 'profile'));
+    $drawnSignature = trim((string) ($_POST['signature_data'] ?? ''));
 
     if ($febId <= 0) {
         throw new RuntimeException(
@@ -42,7 +44,9 @@ try {
         $febId,
         (int) $_SESSION['user_id'],
         $action,
-        $reason
+        $reason,
+        $signatureSource,
+        $drawnSignature
     );
 
     $_SESSION['feb_flash'] = [
@@ -60,8 +64,7 @@ try {
     ];
 }
 
-header(
-    'Location: ../fiches_expression_besoin.php'
-);
+$returnTo = ($_POST['return_to'] ?? '') === 'validation' ? 'validation_feb.php' : 'fiches_expression_besoin.php';
+header('Location: ../' . $returnTo);
 
 exit;
