@@ -35,6 +35,18 @@ if ($selected) {
     $s = $db->prepare('SELECT o.num_offre,o.reference_offre,o.date_offre,c.nom_client,COUNT(DISTINCT d.id) devis,COALESCE(SUM(d.total_ttc),0) total FROM archive_offre o LEFT JOIN archive_client c ON c.id_client=o.client_id AND c.archive_run_id_copy=:client_run LEFT JOIN archive_devis d ON d.offre_id=o.id_offre AND d.archive_run_id_copy=:devis_run WHERE o.archive_run_id_copy=:offer_run GROUP BY o.id_offre ORDER BY o.date_offre DESC');
     $s->execute(['client_run' => $selected, 'devis_run' => $selected, 'offer_run' => $selected]);
     $details = $s->fetchAll();
+    // Les premières clôtures pouvaient être marquées sans copie (ancienne
+    // régression de borne de date). Les sources restent volontairement
+    // conservées : elles servent de filet de consultation pour ces archives.
+    if (!$details) {
+        $s = $db->prepare('SELECT o.num_offre,o.reference_offre,o.date_offre,c.nom_client,COUNT(DISTINCT d.id) devis,COALESCE(SUM(d.total_ttc),0) total FROM offre o LEFT JOIN client c ON c.id_client=o.client_id LEFT JOIN devis d ON d.offre_id=o.id_offre AND d.archive_run_id=:run WHERE o.archive_run_id=:run GROUP BY o.id_offre ORDER BY o.date_offre DESC');
+        $s->execute(['run' => $selected]);
+        $details = $s->fetchAll();
+    }
+    $archiveStats = ['feb' => 0, 'orders' => 0, 'disbursements' => 0];
+    $stats = $db->prepare('SELECT (SELECT COUNT(*) FROM fiches_expression_besoin f JOIN bons_commande bc ON bc.id=f.bon_commande_id JOIN devis d ON d.id=bc.devis_id WHERE d.archive_run_id=:run) feb,(SELECT COUNT(*) FROM bons_commande bc JOIN devis d ON d.id=bc.devis_id WHERE d.archive_run_id=:run) orders,(SELECT COUNT(*) FROM decaissements x JOIN fiches_expression_besoin f ON f.id=x.feb_id JOIN bons_commande bc ON bc.id=f.bon_commande_id JOIN devis d ON d.id=bc.devis_id WHERE d.archive_run_id=:run) disbursements');
+    $stats->execute(['run' => $selected]);
+    $archiveStats = $stats->fetch() ?: $archiveStats;
 }
 ?>
 <!doctype html>
@@ -115,6 +127,7 @@ if ($selected) {
             </section>
         </div><?php if ($selected): ?><section class="archive-panel mt-4">
                 <h2 class="h5">Contenu de l’archive #<?= $selected ?></h2>
+                <p class="text-muted small mb-3"><strong><?= (int)$archiveStats['orders'] ?></strong> commande(s) · <strong><?= (int)$archiveStats['feb'] ?></strong> FEB · <strong><?= (int)$archiveStats['disbursements'] ?></strong> décaissement(s). Les documents d’une clôture restent consultables ici, y compris pour les anciennes clôtures.</p>
                 <div class="table-responsive">
                     <table class="table">
                         <thead>
@@ -132,7 +145,7 @@ if ($selected) {
                                     <td><?= ah($d['date_offre']) ?></td>
                                     <td><?= (int)$d['devis'] ?></td>
                                     <td><?= number_format((float)$d['total'], 0, ',', ' ') ?> FCFA</td>
-                                </tr><?php endforeach; ?></tbody>
+                                </tr><?php endforeach; ?><?php if (!$details): ?><tr><td colspan="5" class="text-center text-muted py-4">Aucun appel d’offre n’est rattaché à cette archive.</td></tr><?php endif; ?></tbody>
                     </table>
                 </div>
             </section><?php endif; ?>

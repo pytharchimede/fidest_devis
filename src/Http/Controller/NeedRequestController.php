@@ -5,5 +5,13 @@ final class NeedRequestController
 {
     public function __construct(private readonly GetNeedRequestRegistry $registry,private readonly ExportNeedRequestPdf $exporter,private readonly ViewRenderer $views){}
     public function index(Request $request,array $parameters=[]):Response{return Response::html($this->views->render('need-requests/index',['rows'=>$this->registry->execute()]));}
+    public function validation(Request $request,array $parameters=[]):Response
+    {
+        $_SESSION['feb_validation_csrf'] ??= bin2hex(random_bytes(24));
+        $user=app_database()->prepare('SELECT id,signature,valider_devis,gestion_utilisateur FROM user_devis WHERE id=:id AND active=1');
+        $user->execute(['id'=>(int)($_SESSION['user_id']??0)]);
+        $flash=$_SESSION['feb_flash']??null;unset($_SESSION['feb_flash']);
+        return Response::html($this->views->render('need-requests/validation',['rows'=>$this->registry->execute(),'user'=>$user->fetch()?:[],'csrf'=>$_SESSION['feb_validation_csrf'],'flash'=>$flash]));
+    }
     public function pdf(Request $request,array $parameters):Response{$id=(int)($parameters['id']??0);$uid=(string)app_database()->query('SELECT document_uid FROM fiches_expression_besoin WHERE id='.$id)->fetchColumn();$base=preg_replace('#/request$#','',(string)dirname((string)$request->server('SCRIPT_NAME','')));$url=((string)$request->server('HTTPS','')!==''?'https':'http').'://'.(string)$request->server('HTTP_HOST','localhost').rtrim((string)$base,'/').'/verification_feb.php?id='.$id.'&uid='.rawurlencode($uid);$file=$this->exporter->execute($id,$url);return Response::binary($file['content'],'application/pdf',$file['filename'],$request->query('download')==='1');}
 }

@@ -17,6 +17,7 @@ $menuItems = [
     ['bons_commande.php', 'Commandes'],
     ['suivi_affaires.php', 'Suivi des affaires'],
     ['fiches_expression_besoin.php', 'Registre des FEB'],
+    ['validation_feb.php', 'Validation des FEB'],
     ['liste_bl.php', 'BL signés'],
     ['liste_facture.php', 'Factures & Encaissements'],
     ['commandes_boutique.php', 'Commandes web'],
