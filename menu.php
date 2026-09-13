@@ -18,7 +18,11 @@ $menuItems = [
     ['suivi_affaires.php', 'Suivi des affaires'],
     ['fiches_expression_besoin.php', 'Registre des FEB'],
     ['validation_feb.php', 'Validation des FEB'],
+    ['tresorerie.php', 'Trésorerie'],
+    ['planification_decaissements.php', 'Planification des décaissements'],
+    ['fournisseurs.php', 'Fournisseurs'],
     ['liste_bl.php', 'BL signés'],
+    ['point_financier.php', 'Point financier'],
     ['liste_facture.php', 'Factures & Encaissements'],
     ['commandes_boutique.php', 'Commandes web'],
     ['messagerie_boutique.php', 'Messages web'],
@@ -64,3 +68,12 @@ if ($canManageAnnouncements) {
 <script src="js/navbar-pro.js" defer></script>
 <script src="js/smart-select.js" defer></script>
 <script src="js/modern-ui.js" defer></script>
+<?php if ($currentPage === 'tresorerie.php'): ?>
+<link rel="stylesheet" href="css/treasury-pilotage.css">
+<link rel="stylesheet" href="css/treasury-layout.css">
+<script src="js/treasury-pilotage.js" defer></script>
+<script src="js/treasury-period.js" defer></script>
+<script src="js/treasury-layout.js" defer></script>
+<?php endif; ?>
+<?php if ($currentPage === 'suivi_affaires.php'): ?><script src="js/workflow-supplier.js" defer></script><?php endif; ?>
+<?php if ($currentPage === 'fournisseurs.php'): ?><script src="js/suppliers.js" defer></script><?php endif; ?>

@@ -38,16 +38,16 @@ try {
         );
     }
 
-    (new App\Application\NeedRequest\ValidateNeedRequest(
-        app_database()
-    ))->execute(
-        $febId,
-        (int) $_SESSION['user_id'],
-        $action,
-        $reason,
-        $signatureSource,
-        $drawnSignature
-    );
+    if ($action === 'approve') {
+        (new App\Application\NeedRequest\ApproveNeedRequest(app_database()))->execute(
+            $febId,(int)$_SESSION['user_id'],(int)($_POST['supplier_id']??0),
+            (string)($_POST['supplier_name']??''),(string)($_POST['supplier_address']??''),
+            (string)($_POST['supplier_phone']??''),(string)($_POST['supplier_email']??''),
+            (string)($_POST['planned_date']??'')
+        );
+    } else {
+        (new App\Application\NeedRequest\ValidateNeedRequest(app_database()))->execute($febId,(int)$_SESSION['user_id'],$action,$reason,$signatureSource,$drawnSignature);
+    }
 
     $_SESSION['feb_flash'] = [
         'type' => 'success',
@@ -64,7 +64,7 @@ try {
     ];
 }
 
-$returnTo = ($_POST['return_to'] ?? '') === 'validation' ? 'validation_feb.php' : 'fiches_expression_besoin.php';
+$returnTo = ($_POST['return_to'] ?? '') === 'validation' ? 'validation_feb.php'.(!empty($_POST['feb_id'])?'?feb_id='.(int)$_POST['feb_id']:'') : 'fiches_expression_besoin.php';
 header('Location: ../' . $returnTo);
 
 exit;

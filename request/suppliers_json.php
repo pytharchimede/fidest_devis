@@ -1,0 +1,1 @@
+<?php declare(strict_types=1);require_once dirname(__DIR__).'/auth_check.php';require_once dirname(__DIR__).'/bootstrap.php';header('Content-Type: application/json; charset=UTF-8');echo json_encode(app_database()->query("SELECT id,ncc,name FROM suppliers WHERE active=1 AND ncc_verified_at IS NOT NULL ORDER BY name")->fetchAll(),JSON_UNESCAPED_UNICODE);

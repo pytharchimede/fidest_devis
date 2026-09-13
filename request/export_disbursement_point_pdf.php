@@ -1,0 +1,1 @@
+<?php declare(strict_types=1);require_once dirname(__DIR__).'/auth_check.php';require_once dirname(__DIR__).'/bootstrap.php';app_container()->get(App\Http\Controller\TreasuryController::class)->pdf(App\Http\Request::capture(),['id'=>(int)($_GET['id']??0)])->send();

@@ -1,0 +1,1 @@
+<?php declare(strict_types=1);require_once dirname(__DIR__).'/auth_check.php';require_once dirname(__DIR__).'/bootstrap.php';if($_SERVER['REQUEST_METHOD']!=='POST'){http_response_code(405);exit('Méthode non autorisée.');}app_container()->get(App\Http\Controller\TreasuryController::class)->action(App\Http\Request::capture())->send();
